@@ -42,22 +42,8 @@ html, body {
     .form-group { flex: 1; min-width: 200px; }
     label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #4a5568; transition: 0.3s; }
     
-    /* 🔥 修正截圖文字掉出框外的問題，嚴格限制高度與 Line-height */
     input[type="text"], input[type="password"], select, input[type="number"] { 
-        width: 100%; 
-        height: 36px; 
-        line-height: 34px; 
-        padding: 0 10px; 
-        border: 1px solid #cbd5e0; 
-        border-radius: 4px; 
-        box-sizing: border-box; 
-        font-size: 13px; 
-        outline: none; 
-        transition: 0.2s; 
-        font-family: inherit;
-        background-color: #ffffff; 
-        color: #333333;
-        -webkit-appearance: none;
+        width: 100%; height: 36px; line-height: 34px; padding: 0 10px; border: 1px solid #cbd5e0; border-radius: 4px; box-sizing: border-box; font-size: 13px; outline: none; transition: 0.2s; font-family: inherit; background-color: #ffffff; color: #333333; -webkit-appearance: none;
     }
     input[type="number"]::-webkit-inner-spin-button, 
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -80,27 +66,17 @@ html, body {
     
     .error-text { color: #e53e3e; font-size: 12px; margin-top: 8px; display: none; font-weight: bold; }
     
-    .table-wrapper { 
-        width: 100%; 
-        max-width: 100%;
-        overflow-x: auto; 
-        -webkit-overflow-scrolling: touch; 
-        margin-bottom: 10px; 
-        box-sizing: border-box; 
-    }
+    .table-wrapper { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px; box-sizing: border-box; }
     table.dist-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; min-width: 540px; }
-    
     table th, table td { border: 1px solid #e2e8f0; padding: 8px 10px; vertical-align: middle; transition: 0.3s; }
     table th { background-color: #edf2f7; color: #2d3748; text-align: center; font-weight: 600; transition: 0.3s; }
     
     table td.region-cell { font-weight: 600; text-align: center; background-color: #f8fafc; width: 15%; color: #4a5568; transition: 0.3s; }
     table td.tier-cell { width: 60%; color: #2d3748; transition: 0.3s; }
-    
     table tr.section-divider td { border-bottom: 2px solid #a0aec0; }
     table td.divider-top { border-top: 2px solid #a0aec0; }
     table td.section-right-border { border-right: 2px solid #cbd5e0; }
 
-    /* 🔥 強制顏色，並加回 !important 以確保覆蓋結果表格的白底 */
     th.bg-visa { background-color: #1a1f71 !important; color: #ffffff !important; border-color: #1a1f71 !important; }
     th.bg-master { background-color: #ff5f00 !important; color: #ffffff !important; border-color: #ff5f00 !important; }
     th.bg-up { background-color: #007d79 !important; color: #ffffff !important; border-color: #007d79 !important; }
@@ -142,9 +118,14 @@ html, body {
     #loginModal { display: flex; }
     .btn-login { width: 100%; padding: 12px; background: #2b6cb0; color: #ffffff; border: none; border-radius: 4px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.3s; }
     
-    .draft-list { list-style: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; }
-    .draft-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #edf2f7; align-items: center; border-radius: 4px; transition: 0.3s; }
-    .draft-item:hover { background-color: #f8fafc; }
+    /* 🔥 新增的 Load Group 分組樣式 */
+    .draft-list { padding: 0; margin: 0; max-height: 400px; overflow-y: auto; }
+    .draft-group { margin-bottom: 15px; border: 1px solid #edf2f7; border-radius: 6px; overflow: hidden; transition: 0.3s; }
+    .draft-group-title { background: #f8fafc; padding: 10px 15px; font-size: 14px; font-weight: bold; color: #2d3748; border-bottom: 1px solid #edf2f7; transition: 0.3s; }
+    .draft-group-list { padding: 0; }
+    .draft-item { display: flex; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #edf2f7; align-items: center; transition: 0.3s; background: white; }
+    .draft-item:last-child { border-bottom: none; }
+    .draft-item:hover { background-color: #f0f4f8; }
     .draft-name { font-weight: 600; color: #2b6cb0; cursor: pointer; flex: 1; transition: 0.3s; }
     .draft-date { font-size: 11px; color: #718096; display: block; margin-top: 4px; font-weight: normal; transition: 0.3s; }
     .btn-delete-draft { background-color: #fff5f5; color: #e53e3e; border: 1px solid #fed7d7; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; transition: 0.3s; }
@@ -153,21 +134,18 @@ html, body {
     .btn-theme-toggle { background: none; border: 1px solid rgba(255,255,255,0.3); color: #ffffff; font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
     .btn-theme-toggle:hover { background: rgba(255,255,255,0.1); }
 
-    /* 🔥 Special MCC Modal 專用寬度與動態樣式 */
+    /* 🔥 Special MCC Modal 專用寬度 */
     .special-mcc-modal { width: 1100px; max-width: 95%; }
     
-    /* 🔥 利用 CSS Class 管理所有表格顏色，解決切換模式後的渲染問題 */
     .segment-cell { text-align: left; font-size: 12px; font-weight: bold; line-height: 1.3; vertical-align: middle; background-color: #f8fafc; color: #2d3748; transition: background-color 0.3s, color 0.3s; border-right: 1px solid #cbd5e0; }
     .sp-mcc-cell { font-weight: bold; color: #2b6cb0; text-align: center; vertical-align: middle; transition: color 0.3s; }
     .sp-desc-cell { text-align: left; font-size: 11px; line-height: 1.4; vertical-align: middle; transition: color 0.3s; }
     .sp-check-cell { text-align: center; vertical-align: middle; transition: color 0.3s; }
-    
-    /* 🔥 修正：防爆格的 recurring only 樣式 */
     .sp-recurring { display: inline-block; font-size: 8.5px; color: #e53e3e; font-weight: bold; line-height: 1.1; margin-top: 3px; text-align: center; transition: color 0.3s; }
     .sp-dash { color: #cbd5e0; transition: color 0.3s; }
 
     /* ==================================================== */
-    /* 🔥 DARK MODE (完全移除 !important，利用原生權重) */
+    /* 🔥 DARK MODE */
     /* ==================================================== */
     body.dark-mode { background-color: #1a202c; color: #e2e8f0; }
     body.dark-mode .top-nav { background-color: #111827; box-shadow: 0 2px 8px rgba(0,0,0,0.5); border-bottom: 1px solid #2d3748; }
@@ -199,24 +177,27 @@ html, body {
     body.dark-mode table th { background-color: #2d3748; color: #e2e8f0; border-color: #4a5568; }
     body.dark-mode table td { border-color: #4a5568; }
     
-    /* 🔥 Dark Mode overrides for Special MCC Table */
     body.dark-mode .segment-cell { background-color: #1a202c; color: #e2e8f0; border-right-color: #4a5568; }
     body.dark-mode .sp-mcc-cell { color: #90cdf4; }
     body.dark-mode .sp-recurring { color: #fc8181; }
     body.dark-mode .sp-dash { color: #4a5568; }
     
-    /* 確保 Dark Mode 下的表格顏色也維持強力覆蓋 */
-    body.dark-mode th.bg-visa { background-color: #1a1f71 !important; color: #ffffff !important; border-color: #1a1f71 !important; }
-    body.dark-mode th.bg-master { background-color: #ff5f00 !important; color: #ffffff !important; border-color: #ff5f00 !important; }
-    body.dark-mode th.bg-up { background-color: #007d79 !important; color: #ffffff !important; border-color: #007d79 !important; }
-    body.dark-mode th.bg-upqp { background-color: #005b57 !important; color: #ffffff !important; border-color: #005b57 !important; }
-    body.dark-mode th.bg-weight { background-color: #4a5568 !important; color: #ffffff !important; border-color: #4a5568 !important; }
-    body.dark-mode th.bg-higher { background-color: #1a202c !important; color: #ffffff !important; border-color: #1a202c !important; }
+    /* 🔥 Dark Mode overrides for Draft List Grouping */
+    body.dark-mode .draft-group { border-color: #4a5568; }
+    body.dark-mode .draft-group-title { background-color: #1a202c; color: #e2e8f0; border-bottom-color: #4a5568; }
+    body.dark-mode .draft-item { background-color: #2d3748; border-bottom-color: #4a5568; }
+    body.dark-mode .draft-item:hover { background-color: #4a5568; }
+
+    th.bg-visa { background-color: #1a1f71 !important; color: #ffffff !important; border-color: #1a1f71 !important; }
+    th.bg-master { background-color: #ff5f00 !important; color: #ffffff !important; border-color: #ff5f00 !important; }
+    th.bg-up { background-color: #007d79 !important; color: #ffffff !important; border-color: #007d79 !important; }
+    th.bg-upqp { background-color: #005b57 !important; color: #ffffff !important; border-color: #005b57 !important; }
+    th.bg-weight { background-color: #4a5568 !important; color: #ffffff !important; border-color: #4a5568 !important; }
+    th.bg-higher { background-color: #1a202c !important; color: #ffffff !important; border-color: #1a202c !important; }
 
     body.dark-mode table td.region-cell, body.dark-mode table td.row-label { background-color: #1a202c; color: #e2e8f0; }
     body.dark-mode table td.tier-cell, body.dark-mode table td.val { color: #e2e8f0; }
     body.dark-mode table td.na-cell { background-color: #1a202c; border-color: #4a5568; color: #718096; }
-    
     body.dark-mode table tr.total-alloc-row td { background-color: #2d3748; color: #e2e8f0; border-color: #4a5568; }
     body.dark-mode table tr.section-divider td { border-bottom-color: #718096; }
     body.dark-mode table td.divider-top { border-top-color: #718096; }
@@ -229,16 +210,8 @@ html, body {
     body.dark-mode .btn-load { background-color: #7b341e; color: #fbd38d; border-color: #9c4221; }
     body.dark-mode .btn-save:hover { background-color: #285e61; }
     body.dark-mode .btn-load:hover { background-color: #9c4221; }
-    
-    body.dark-mode .draft-item { border-bottom-color: #4a5568; }
-    body.dark-mode .draft-item:hover { background-color: #4a5568; }
-    body.dark-mode .draft-name { color: #63b3ed; }
-    body.dark-mode .draft-date { color: #a0aec0; }
     body.dark-mode .btn-delete-draft { background-color: #742a2a; color: #fc8181; border-color: #9b2c2c; }
 
-    /* ==================================================== */
-    /* 🔥 行動裝置響應式設計 (Mobile Responsiveness) */
-    /* ==================================================== */
     @media (max-width: 1024px) {
         .main-layout { flex-direction: column; }
         .input-area, .result-area { width: 100%; flex: auto; }
@@ -249,12 +222,10 @@ html, body {
         body { padding: 10px; padding-bottom: 120px; } 
         .top-nav { flex-direction: column; gap: 10px; align-items: flex-start; }
         .user-info { width: 100%; justify-content: space-between; }
-        
         .sticky-controls { padding: 10px; gap: 8px; justify-content: space-between; }
         .sticky-controls .btn { flex: 1 1 calc(50% - 10px); padding: 12px 10px; font-size: 13px; margin: 0; text-align: center; }
         .sticky-controls .btn-calc { flex: 1 1 100%; margin-left: 0; font-size: 16px; margin-top: 5px; }
 
-        /* 🔥 手機版：Special MCC Modal 變為全螢幕，並防擠壓 */
         .special-mcc-modal {
             width: 100vw !important;
             height: 100vh !important;
@@ -265,10 +236,9 @@ html, body {
             padding: 15px !important;
             box-sizing: border-box;
         }
-        .special-mcc-modal .table-wrapper {
-            flex: 1;
-            height: 100%;
-        }
+        .special-mcc-modal .table-wrapper { flex: 1; height: 100%; }
+        
+        .modal-content { width: 95vw; padding: 20px; }
     }
 </style>
 </head>
@@ -279,7 +249,6 @@ html, body {
 <img src="https://qfpay.global/wp-content/uploads/2023/10/logo_black.png" alt="QFPay" style="height: 40px; width: auto; max-width: 100%;">
 </div>
     <h3 style="text-align: center; border:none; color: #1a1f71; font-size: 22px; margin-top: 0; margin-bottom: 25px;">Card Cost Calculator</h3>
-    
     <div class="form-group" style="margin-bottom: 15px;">
         <label>Username</label>
         <input type="text" id="login_user" placeholder="Enter your username" onkeydown="if(event.key === 'Enter') attemptLogin()">
@@ -306,7 +275,6 @@ html, body {
 </div>
 <div class="main-layout" id="main_layout_area">
     <div class="input-area" id="input_form_area">
-        
         <div class="panel">
             <h2>Update History</h2>
             <div class="update-box" id="update_history_container">
@@ -324,9 +292,7 @@ html, body {
                         <button type="button" onclick="openSpecialMccModal()" style="font-size: 11px; padding: 2px 6px; border-radius: 4px; background: #ebf8fa; color: #319795; border: 1px solid #b2f5ea; cursor: pointer; font-weight: bold; line-height: 1;">📋 View Full Special MCC List</button>
                     </label>
                     <input type="text" id="mcc" list="mcc_list" class="basic-info-field" onchange="toggleOtherMcc(); checkSpecialMcc();" oninput="checkSpecialMcc();" placeholder="Select or type MCC..." autocomplete="off">
-                    <datalist id="mcc_list">
-                        <option value="Loading MCCs...">
-                    </datalist>
+                    <datalist id="mcc_list"></datalist>
                     <div style="display: flex; gap: 6px; margin-top: 8px;">
                         <span id="badge_v" style="font-size: 10px; padding: 3px 6px; border-radius: 3px; background: #edf2f7; color: #a0aec0; border: 1px solid #e2e8f0; font-weight: bold;">VISA</span>
                         <span id="badge_m" style="font-size: 10px; padding: 3px 6px; border-radius: 3px; background: #edf2f7; color: #a0aec0; border: 1px solid #e2e8f0; font-weight: bold;">MASTER</span>
@@ -601,13 +567,16 @@ html, body {
 </div>
 
 <div id="loadModal" class="modal-overlay">
-    <div class="modal-content">
-        <h3 style="display: flex; justify-content: space-between; align-items: center;">☁️ Cloud Saved Records <button onclick="closeLoadModal()" style="background: none; border: none; cursor: pointer;" class="close-icon">✖</button></h3>
-        <input type="text" id="record_search" placeholder="🔍 Search records by name..." style="margin-bottom: 15px; width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #cbd5e0;" onkeyup="filterRecords()">
-        <ul id="draftList" class="draft-list">
-            <li style="text-align:center; padding: 20px; color:#a0aec0;">Loading records from cloud...</li>
-        </ul>
-        <button class="btn-close-modal" id="btn_close_load" onclick="closeLoadModal()">Close</button>
+    <div class="modal-content" style="max-height: 80vh; display: flex; flex-direction: column;">
+        <h3 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-shrink: 0;">
+            ☁️ Cloud Saved Records 
+            <button onclick="closeLoadModal()" style="background: none; border: none; cursor: pointer;" class="close-icon">✖</button>
+        </h3>
+        <input type="text" id="record_search" placeholder="🔍 Search by merchant or record name..." style="margin-bottom: 15px; width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #cbd5e0; flex-shrink: 0;" onkeyup="filterRecords()">
+        <div id="draftList" class="draft-list" style="flex: 1; overflow-y: auto;">
+            <div style="text-align:center; padding: 20px; color:#a0aec0;">Loading records from cloud... ⏳</div>
+        </div>
+        <button class="btn-close-modal" id="btn_close_load" onclick="closeLoadModal()" style="flex-shrink: 0; margin-top: 15px;">Close</button>
     </div>
 </div>
 
@@ -893,7 +862,6 @@ function exportToImage() {
     const firstVersionEl = document.querySelector('.update-version');
     const latestVersionText = firstVersionEl ? firstVersionEl.innerText : 'Version ID: Unknown';
     
-    // 🔥 擷取數字版本號做為檔名後綴
     const verMatch = latestVersionText.match(/\d+/);
     const verNumber = verMatch ? verMatch[0] : 'Unknown';
 
@@ -925,7 +893,6 @@ function exportToImage() {
             const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
             
             const link = document.createElement('a');
-            // 🔥 在檔名加上 _verYYYYMMDD
             link.download = `QFCCL_${mName}_${dateStr}_ver${verNumber}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
@@ -1048,6 +1015,8 @@ function renderSpecialMccTable() {
         return;
     }
 
+    const isDark = document.body.classList.contains('dark-mode');
+
     let sortedList = [...specialMccDetailedList].sort((a, b) => {
         let segA = (a.segment || "").toLowerCase();
         let segB = (b.segment || "").toLowerCase();
@@ -1067,7 +1036,6 @@ function renderSpecialMccTable() {
         
         const isRecurring = (item.segment || "").toLowerCase().includes('recurring');
         
-        // 🔥 修改：加入 <br> 標籤，讓 recurring only 穩穩變成兩行，防爆格
         const renderCheck = (val) => {
             if (val === 'Y') {
                 return isRecurring ? '✅<br><span class="sp-recurring">recurring<br>only</span>' : '✅';
@@ -1348,19 +1316,37 @@ function executeFinalSave(mode) {
     });
 }
 
+// 🔥 修改後的：包含分組搜尋過濾功能的 Load List
 function filterRecords() {
     let input = document.getElementById('record_search').value.toLowerCase();
-    let items = document.querySelectorAll('#draftList .draft-item');
-    items.forEach(item => {
-        let name = item.querySelector('.draft-name').innerText.toLowerCase();
-        if (name.includes(input)) {
-            item.style.display = 'flex';
+    let groups = document.querySelectorAll('#draftList .draft-group');
+    
+    groups.forEach(group => {
+        let groupTitleText = group.querySelector('.draft-group-title').innerText.toLowerCase();
+        let items = group.querySelectorAll('.draft-item');
+        let hasVisibleItem = false;
+        
+        items.forEach(item => {
+            let name = item.querySelector('.draft-name').innerText.toLowerCase();
+            // 如果輸入字串符合群組名稱(Merchant) 或 個別紀錄名稱，就顯示
+            if (name.includes(input) || groupTitleText.includes(input)) {
+                item.style.display = 'flex';
+                hasVisibleItem = true;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // 如果該商戶底下沒有任何符合的紀錄，就把整個商戶群組隱藏
+        if (hasVisibleItem) {
+            group.style.display = 'block';
         } else {
-            item.style.display = 'none';
+            group.style.display = 'none';
         }
     });
 }
 
+// 🔥 修改後的：以 Merchant Name 進行分組渲染的 Load Modal
 function openLoadModal() {
     setActionState(true, 'btn_cloud_load', 'Loading...');
     document.getElementById('loadModal').style.display = 'flex';
@@ -1368,7 +1354,7 @@ function openLoadModal() {
     if(searchInput) searchInput.value = '';
 
     let listEl = document.getElementById('draftList');
-    listEl.innerHTML = '<li style="text-align:center; padding: 20px; color:#a0aec0;">Loading from cloud... ⏳</li>';
+    listEl.innerHTML = '<div style="text-align:center; padding: 20px; color:#a0aec0;">Loading from cloud... ⏳</div>';
 
     fetch(API_URL, {
         method: 'POST',
@@ -1379,21 +1365,67 @@ function openLoadModal() {
         setActionState(false);
         listEl.innerHTML = '';
         if(res.status === "success" && res.data.length > 0) {
-            res.data.reverse().forEach(item => {
-                let li = document.createElement('li'); li.className = 'draft-item';
-                let infoDiv = document.createElement('div'); infoDiv.className = 'draft-name';
-                infoDiv.onclick = () => loadSpecificRecord(item.recordName, item.jsonData);
-                infoDiv.innerHTML = `${item.recordName} <span class="draft-date">${item.timestamp}</span>`;
-                let delBtn = document.createElement('button'); delBtn.className = 'btn-delete-draft'; delBtn.innerText = 'Delete';
-                delBtn.onclick = (e) => { e.stopPropagation(); deleteRecord(item.recordName); };
-                li.appendChild(infoDiv); li.appendChild(delBtn); listEl.appendChild(li);
+            let records = res.data.reverse();
+            let grouped = {};
+            
+            // 進行分組 (用 merchant_name)
+            records.forEach(item => {
+                let mName = "Unknown Merchant";
+                try {
+                    let parsed = JSON.parse(item.jsonData);
+                    if (parsed.basic && parsed.basic.merchant_name) {
+                        mName = parsed.basic.merchant_name.trim() || "Unknown Merchant";
+                    }
+                } catch(e) {}
+                
+                if (!grouped[mName]) grouped[mName] = [];
+                grouped[mName].push(item);
             });
+
+            // 渲染分組的 HTML
+            for (let mName in grouped) {
+                let groupDiv = document.createElement('div');
+                groupDiv.className = 'draft-group';
+                
+                let groupTitle = document.createElement('div');
+                groupTitle.className = 'draft-group-title';
+                groupTitle.innerHTML = `📁 ${mName} <span style="font-size: 11px; font-weight: normal; color: #a0aec0; float: right;">${grouped[mName].length} versions</span>`;
+                groupDiv.appendChild(groupTitle);
+                
+                let groupList = document.createElement('div');
+                groupList.className = 'draft-group-list';
+
+                grouped[mName].forEach(item => {
+                    let li = document.createElement('div'); 
+                    li.className = 'draft-item';
+                    
+                    let infoDiv = document.createElement('div'); 
+                    infoDiv.className = 'draft-name';
+                    infoDiv.onclick = () => loadSpecificRecord(item.recordName, item.jsonData);
+                    infoDiv.innerHTML = `${item.recordName} <span class="draft-date">${item.timestamp}</span>`;
+                    
+                    let delBtn = document.createElement('button'); 
+                    delBtn.className = 'btn-delete-draft'; 
+                    delBtn.innerText = 'Delete';
+                    delBtn.onclick = (e) => { 
+                        e.stopPropagation(); 
+                        deleteRecord(item.recordName); 
+                    };
+                    
+                    li.appendChild(infoDiv); 
+                    li.appendChild(delBtn);
+                    groupList.appendChild(li);
+                });
+                
+                groupDiv.appendChild(groupList);
+                listEl.appendChild(groupDiv);
+            }
         } else {
-            listEl.innerHTML = '<li style="text-align:center; padding: 20px; color:#a0aec0;">No saved records found.</li>';
+            listEl.innerHTML = '<div style="text-align:center; padding: 20px; color:#a0aec0;">No saved records found.</div>';
         }
     }).catch(err => { 
         setActionState(false);
-        listEl.innerHTML = '<li style="text-align:center; color:red;">Failed to load.</li>'; 
+        listEl.innerHTML = '<div style="text-align:center; color:red;">Failed to load.</div>'; 
     });
 }
 
