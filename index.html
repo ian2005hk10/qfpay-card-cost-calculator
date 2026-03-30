@@ -161,7 +161,9 @@ html, body {
     .sp-mcc-cell { font-weight: bold; color: #2b6cb0; text-align: center; vertical-align: middle; transition: color 0.3s; }
     .sp-desc-cell { text-align: left; font-size: 11px; line-height: 1.4; vertical-align: middle; transition: color 0.3s; }
     .sp-check-cell { text-align: center; vertical-align: middle; transition: color 0.3s; }
-    .sp-recurring { font-size: 9px; color: #e53e3e; font-weight: bold; white-space: nowrap; transition: color 0.3s; }
+    
+    /* 🔥 修正：防爆格的 recurring only 樣式 */
+    .sp-recurring { display: inline-block; font-size: 8.5px; color: #e53e3e; font-weight: bold; line-height: 1.1; margin-top: 3px; text-align: center; transition: color 0.3s; }
     .sp-dash { color: #cbd5e0; transition: color 0.3s; }
 
     /* ==================================================== */
@@ -619,22 +621,22 @@ html, body {
             <table class="dist-table" id="special_mcc_table" style="table-layout: fixed; width: 100%; min-width: 900px;">
                 <thead style="position: sticky; top: 0; z-index: 10;">
                     <tr>
-                        <th rowspan="2" style="width: 12%; text-align: left;">Segment</th>
+                        <th rowspan="2" style="width: 13%; text-align: left;">Segment</th>
                         <th rowspan="2" style="width: 5%;">MCC</th>
                         <th rowspan="2" style="width: 12%; text-align: left;">Name</th>
-                        <th rowspan="2" style="width: 16%; text-align: left;">Description</th>
-                        <th rowspan="2" style="width: 10%; text-align: left;">Industry</th>
-                        <th colspan="2" class="bg-visa" style="width: 15%;">Visa</th>
-                        <th colspan="2" class="bg-master" style="width: 15%;">Mastercard</th>
-                        <th colspan="2" class="bg-up" style="width: 15%;">UnionPay</th>
+                        <th rowspan="2" style="width: 22%; text-align: left;">Description</th>
+                        <th rowspan="2" style="width: 12%; text-align: left;">Industry</th>
+                        <th colspan="2" class="bg-visa" style="width: 12%;">Visa</th>
+                        <th colspan="2" class="bg-master" style="width: 12%;">Mastercard</th>
+                        <th colspan="2" class="bg-up" style="width: 12%;">UnionPay</th>
                     </tr>
                     <tr>
-                        <th class="bg-visa" style="font-size:10px; width: 7.5%; padding: 4px;">Online</th>
-                        <th class="bg-visa" style="font-size:10px; width: 7.5%; padding: 4px;">Offline</th>
-                        <th class="bg-master" style="font-size:10px; width: 7.5%; padding: 4px;">Online</th>
-                        <th class="bg-master" style="font-size:10px; width: 7.5%; padding: 4px;">Offline</th>
-                        <th class="bg-up" style="font-size:10px; width: 7.5%; padding: 4px;">Local</th>
-                        <th class="bg-up" style="font-size:10px; width: 7.5%; padding: 4px;">Int'l</th>
+                        <th class="bg-visa" style="font-size:10px; width: 6%; padding: 4px;">Online</th>
+                        <th class="bg-visa" style="font-size:10px; width: 6%; padding: 4px;">Offline</th>
+                        <th class="bg-master" style="font-size:10px; width: 6%; padding: 4px;">Online</th>
+                        <th class="bg-master" style="font-size:10px; width: 6%; padding: 4px;">Offline</th>
+                        <th class="bg-up" style="font-size:10px; width: 6%; padding: 4px;">Local</th>
+                        <th class="bg-up" style="font-size:10px; width: 6%; padding: 4px;">Int'l</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -890,6 +892,10 @@ function exportToImage() {
 
     const firstVersionEl = document.querySelector('.update-version');
     const latestVersionText = firstVersionEl ? firstVersionEl.innerText : 'Version ID: Unknown';
+    
+    // 🔥 擷取數字版本號做為檔名後綴
+    const verMatch = latestVersionText.match(/\d+/);
+    const verNumber = verMatch ? verMatch[0] : 'Unknown';
 
     updatePanel.innerHTML = `
         <h2 style="border-bottom:none; padding-bottom:0; margin-bottom:5px; font-size:16px;">System Info</h2>
@@ -919,7 +925,8 @@ function exportToImage() {
             const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
             
             const link = document.createElement('a');
-            link.download = `QFCCL_${mName}_${dateStr}.png`;
+            // 🔥 在檔名加上 _verYYYYMMDD
+            link.download = `QFCCL_${mName}_${dateStr}_ver${verNumber}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
             
@@ -1041,8 +1048,6 @@ function renderSpecialMccTable() {
         return;
     }
 
-    const isDark = document.body.classList.contains('dark-mode');
-
     let sortedList = [...specialMccDetailedList].sort((a, b) => {
         let segA = (a.segment || "").toLowerCase();
         let segB = (b.segment || "").toLowerCase();
@@ -1062,9 +1067,10 @@ function renderSpecialMccTable() {
         
         const isRecurring = (item.segment || "").toLowerCase().includes('recurring');
         
+        // 🔥 修改：加入 <br> 標籤，讓 recurring only 穩穩變成兩行，防爆格
         const renderCheck = (val) => {
             if (val === 'Y') {
-                return isRecurring ? '✅<br><span class="sp-recurring">recurring only</span>' : '✅';
+                return isRecurring ? '✅<br><span class="sp-recurring">recurring<br>only</span>' : '✅';
             }
             return '<span class="sp-dash">-</span>';
         };
