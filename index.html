@@ -15,6 +15,7 @@ html, body {
 }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; padding-bottom: 90px; color: #333; transition: background-color 0.3s, color 0.3s; }
     
+    /* 解決 html2canvas 解析 iOS color(display-p3) 的報錯 Bug */
     button { background-color: #ffffff; color: #333333; }
 
     .top-nav { display: flex; justify-content: space-between; align-items: center; background: #2c3e50; color: white; padding: 10px 20px; border-radius: 6px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s; }
@@ -42,6 +43,7 @@ html, body {
     .form-group { flex: 1; min-width: 200px; }
     label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #4a5568; transition: 0.3s; }
     
+    /* 🔥 修正截圖文字掉出框外的問題，嚴格限制高度與 Line-height */
     input[type="text"], input[type="password"], select, input[type="number"] { 
         width: 100%; 
         height: 36px; 
@@ -99,6 +101,7 @@ html, body {
     table td.divider-top { border-top: 2px solid #a0aec0; }
     table td.section-right-border { border-right: 2px solid #cbd5e0; }
 
+    /* 🔥 強制顏色，並加回 !important 以確保覆蓋結果表格的白底 */
     th.bg-visa { background-color: #1a1f71 !important; color: #ffffff !important; border-color: #1a1f71 !important; }
     th.bg-master { background-color: #ff5f00 !important; color: #ffffff !important; border-color: #ff5f00 !important; }
     th.bg-up { background-color: #007d79 !important; color: #ffffff !important; border-color: #007d79 !important; }
@@ -151,8 +154,16 @@ html, body {
     .btn-theme-toggle { background: none; border: 1px solid rgba(255,255,255,0.3); color: #ffffff; font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
     .btn-theme-toggle:hover { background: rgba(255,255,255,0.1); }
 
-    /* 🔥 Special MCC Modal 專用寬度 */
+    /* 🔥 Special MCC Modal 專用寬度與動態樣式 */
     .special-mcc-modal { width: 1100px; max-width: 95%; }
+    
+    /* 🔥 新增的 CSS 類別，負責控制 MCC 表格的顏色變化 */
+    .segment-cell { text-align: left; font-size: 12px; font-weight: bold; line-height: 1.3; vertical-align: middle; background-color: #f8fafc; color: #2d3748; transition: background-color 0.3s, color 0.3s; }
+    .sp-mcc-cell { font-weight: bold; color: #2b6cb0; text-align: center; vertical-align: middle; transition: color 0.3s; }
+    .sp-desc-cell { text-align: left; font-size: 11px; line-height: 1.4; vertical-align: middle; transition: color 0.3s; }
+    .sp-check-cell { text-align: center; vertical-align: middle; transition: color 0.3s; }
+    .sp-recurring { font-size: 9px; color: #e53e3e; font-weight: bold; white-space: nowrap; transition: color 0.3s; }
+    .sp-dash { color: #cbd5e0; transition: color 0.3s; }
 
     /* ==================================================== */
     /* 🔥 DARK MODE (完全移除 !important，利用原生權重) */
@@ -186,6 +197,12 @@ html, body {
     
     body.dark-mode table th { background-color: #2d3748; color: #e2e8f0; border-color: #4a5568; }
     body.dark-mode table td { border-color: #4a5568; }
+
+    /* 🔥 Dark Mode overrides for Special MCC Table */
+    body.dark-mode .segment-cell { background-color: #1a202c; color: #e2e8f0; }
+    body.dark-mode .sp-mcc-cell { color: #90cdf4; }
+    body.dark-mode .sp-recurring { color: #fc8181; }
+    body.dark-mode .sp-dash { color: #4a5568; }
     
     /* 確保 Dark Mode 下的表格顏色也維持強力覆蓋 */
     body.dark-mode th.bg-visa { background-color: #1a1f71 !important; color: #ffffff !important; border-color: #1a1f71 !important; }
@@ -236,7 +253,6 @@ html, body {
         .sticky-controls .btn { flex: 1 1 calc(50% - 10px); padding: 12px 10px; font-size: 13px; margin: 0; text-align: center; }
         .sticky-controls .btn-calc { flex: 1 1 100%; margin-left: 0; font-size: 16px; margin-top: 5px; }
 
-        /* 🔥 手機版：Special MCC Modal 變為全螢幕，模擬開新分頁 */
         .special-mcc-modal {
             width: 100vw !important;
             height: 100vh !important;
@@ -278,7 +294,7 @@ html, body {
 <div id="appContainer" style="display: none;">
 <div class="top-nav">
 <div class="nav-brand">
-<img src="https://googleusercontent.com/profile/picture/0" style="border-radius: 50%;">
+<img src="https://lh3.googleusercontent.com/pw/AP1GczPlSaIaBw6KH0c0i8chM-aopIZPv7NrVTo3W1HwtK7c8jizmRwumzikQAdEM6JwRuh4WLfy1kIcpuY-Sd8XBOAKZIhBT1LPcKxhckgNzW4VBIediFqSJLE0suEjKeoqxzTn5TSdAGxmswiVjintBzKr=w384-h72-s-no?authuser=0" style="border-radius: 50%;">
 </div>
 <div class="user-info">
 <button class="btn-theme-toggle" id="btn_theme" onclick="toggleTheme()" title="Toggle Dark Mode">🌙</button>
@@ -603,21 +619,21 @@ html, body {
             <table class="dist-table" id="special_mcc_table" style="table-layout: fixed; width: 100%; min-width: 900px;">
                 <thead style="position: sticky; top: 0; z-index: 10;">
                     <tr>
-                        <th rowspan="2" style="width: 15%; text-align: left;">Segment</th>
-                        <th rowspan="2" style="width: 6%;">MCC</th>
+                        <th rowspan="2" style="width: 13%; text-align: left;">Segment</th>
+                        <th rowspan="2" style="width: 5%;">MCC</th>
                         <th rowspan="2" style="width: 22%; text-align: left;">Description</th>
                         <th rowspan="2" style="width: 12%; text-align: left;">Industry</th>
-                        <th colspan="2" class="bg-visa" style="width: 15%;">Visa</th>
-                        <th colspan="2" class="bg-master" style="width: 15%;">Mastercard</th>
-                        <th colspan="2" class="bg-up" style="width: 15%;">UnionPay</th>
+                        <th colspan="2" class="bg-visa" style="width: 16%;">Visa</th>
+                        <th colspan="2" class="bg-master" style="width: 16%;">Mastercard</th>
+                        <th colspan="2" class="bg-up" style="width: 16%;">UnionPay</th>
                     </tr>
                     <tr>
-                        <th class="bg-visa" style="font-size:10.5px; padding: 4px;">Online</th>
-                        <th class="bg-visa" style="font-size:10.5px; padding: 4px;">Offline</th>
-                        <th class="bg-master" style="font-size:10.5px; padding: 4px;">Online</th>
-                        <th class="bg-master" style="font-size:10.5px; padding: 4px;">Offline</th>
-                        <th class="bg-up" style="font-size:10.5px; padding: 4px;">Local</th>
-                        <th class="bg-up" style="font-size:10.5px; padding: 4px;">Int'l</th>
+                        <th class="bg-visa" style="font-size:10.5px; padding: 4px; width: 8%;">Online</th>
+                        <th class="bg-visa" style="font-size:10.5px; padding: 4px; width: 8%;">Offline</th>
+                        <th class="bg-master" style="font-size:10.5px; padding: 4px; width: 8%;">Online</th>
+                        <th class="bg-master" style="font-size:10.5px; padding: 4px; width: 8%;">Offline</th>
+                        <th class="bg-up" style="font-size:10.5px; padding: 4px; width: 8%;">Local</th>
+                        <th class="bg-up" style="font-size:10.5px; padding: 4px; width: 8%;">Int'l</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1024,8 +1040,6 @@ function renderSpecialMccTable() {
         return;
     }
 
-    const isDark = document.body.classList.contains('dark-mode');
-
     let sortedList = [...specialMccDetailedList].sort((a, b) => {
         let segA = (a.segment || "").toLowerCase();
         let segB = (b.segment || "").toLowerCase();
@@ -1047,21 +1061,16 @@ function renderSpecialMccTable() {
         
         const renderCheck = (val) => {
             if (val === 'Y') {
-                return isRecurring ? '✅<br><span style="font-size:9px; color:#e53e3e; font-weight:bold; white-space:nowrap;">recurring only</span>' : '✅';
+                return isRecurring ? '✅<br><span class="sp-recurring">recurring only</span>' : '✅';
             }
-            return '<span style="color:#cbd5e0;">-</span>';
+            return '<span class="sp-dash">-</span>';
         };
 
         if (item.segment !== currentSegment) {
             currentSegment = item.segment;
             
             const tdSegment = document.createElement('td');
-            tdSegment.style.textAlign = 'left';
-            tdSegment.style.fontSize = '12px';
-            tdSegment.style.fontWeight = 'bold';
-            tdSegment.style.lineHeight = '1.3';
-            tdSegment.style.verticalAlign = 'middle';
-            tdSegment.style.backgroundColor = isDark ? '#2d3748' : '#f8fafc';
+            tdSegment.className = 'segment-cell';
             tdSegment.innerHTML = item.segment || '-';
             
             currentSegmentTd = tdSegment;
@@ -1074,15 +1083,15 @@ function renderSpecialMccTable() {
 
         const restOfRow = document.createElement('template');
         restOfRow.innerHTML = `
-            <td style="font-weight:bold; color: ${isDark ? '#90cdf4' : '#2b6cb0'}; text-align:center; vertical-align:middle;">${item.mcc}</td>
-            <td style="text-align:left; font-size:11px; line-height: 1.4; vertical-align:middle;">${item.desc || '-'}</td>
-            <td style="text-align:left; font-size:11px; line-height: 1.4; vertical-align:middle;">${item.industry || '-'}</td>
-            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.vOn)}</td>
-            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.vOff)}</td>
-            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.mOn)}</td>
-            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.mOff)}</td>
-            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.uLoc)}</td>
-            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.uInt)}</td>
+            <td class="sp-mcc-cell">${item.mcc}</td>
+            <td class="sp-desc-cell">${item.desc || '-'}</td>
+            <td class="sp-desc-cell">${item.industry || '-'}</td>
+            <td class="sp-check-cell">${renderCheck(item.vOn)}</td>
+            <td class="sp-check-cell">${renderCheck(item.vOff)}</td>
+            <td class="sp-check-cell">${renderCheck(item.mOn)}</td>
+            <td class="sp-check-cell">${renderCheck(item.mOff)}</td>
+            <td class="sp-check-cell">${renderCheck(item.uLoc)}</td>
+            <td class="sp-check-cell">${renderCheck(item.uInt)}</td>
         `;
         
         while(restOfRow.content.firstChild) {
