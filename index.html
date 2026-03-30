@@ -404,6 +404,10 @@ html, body {
 // ==========================================
 // 🚨 Supabase API 設定 (同原本)
 // ==========================================
+<script>
+// ==========================================
+// 🚨 Supabase 的 API 設定
+// ==========================================
 const API_URL = "https://fayzdigpxabjfoygllmw.supabase.co/functions/v1/calculate-cost";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZheXpkaWdweGFiamZveWdsbG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTAxODIsImV4cCI6MjA4OTgyNjE4Mn0.Yd7D36SzJmYs0olFGXAjm5gJoL-dQbXIGAS8SHmWRaQ"; 
 
@@ -417,9 +421,295 @@ let currentUser = null;
 let specialMccs = { v: [], m: [], u: [] };
 let mccDetailsMap = {};
 let idleTime = 0; 
-let specialMccDetailedList = []; // 🔥 新增：用來存放完整的表格資料
+let specialMccDetailedList = []; // 🔥 用來存放完整的 Special MCC 表格資料
 
-// ... 中間省略，保留你原有的 toggleTheme, setActionState, markResultStale, 事件監聽...
+function applyStoredTheme() {
+    const savedTheme = localStorage.getItem('qfpay_theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('btn_theme').innerText = '☀️';
+    }
+}
+
+function toggleTheme() {
+    const body = document.body;
+    const btn = document.getElementById('btn_theme');
+    if (body.classList.contains('dark-mode')) {
+        body.classList.remove('dark-mode');
+        btn.innerText = '🌙';
+        localStorage.setItem('qfpay_theme', 'light');
+        calcVisa(); calcMaster(); calcUP();
+    } else {
+        body.classList.add('dark-mode');
+        btn.innerText = '☀️';
+        localStorage.setItem('qfpay_theme', 'dark');
+        calcVisa(); calcMaster(); calcUP();
+    }
+}
+
+function setActionState(isLoading, targetBtnId, loadingText) {
+    const buttons = document.querySelectorAll('.sticky-controls .btn');
+    buttons.forEach(btn => {
+        btn.disabled = isLoading;
+        btn.style.opacity = isLoading ? '0.5' : '1';
+        btn.style.cursor = isLoading ? 'not-allowed' : 'pointer';
+    });
+    
+    const inputs = document.querySelectorAll('#input_form_area input, #input_form_area select');
+    inputs.forEach(el => { el.disabled = isLoading; });
+
+    if (isLoading && targetBtnId) {
+        const mainBtn = document.getElementById(targetBtnId);
+        if (mainBtn) mainBtn.innerText = loadingText;
+    } else if (!isLoading) {
+        document.getElementById('btn_calc').innerText = "Calculate";
+        document.getElementById('btn_cloud_save').innerText = "☁️ Save to Cloud";
+        document.getElementById('btn_cloud_load').innerText = "☁️ Load from Cloud";
+        document.getElementById('btn_export').innerText = "📷 Export Image";
+        toggleShopify(); 
+    }
+}
+
+function setModalButtonsState(disabled) {
+    document.querySelectorAll('#saveConflictModal button').forEach(btn => {
+        btn.disabled = disabled;
+        btn.style.opacity = disabled ? '0.5' : '1';
+        btn.style.cursor = disabled ? 'not-allowed' : 'pointer';
+    });
+}
+
+const markResultStale = () => { document.getElementById('tables_container').classList.add('stale-result'); };
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll('#input_form_area input, #input_form_area select').forEach(el => {
+        el.addEventListener('input', markResultStale);
+        el.addEventListener('change', markResultStale);
+    });
+
+    document.querySelectorAll('input[type="number"], #mcc').forEach(el => {
+        el.addEventListener('focus', function() {
+            this.select();
+        });
+    });
+
+    document.getElementById('mcc').addEventListener('change', function() {
+        let val = this.value.trim();
+        if (!val) { checkSpecialMcc(); return; }
+        
+        let options = Array.from(document.getElementById('mcc_list').options).map(opt => opt.value);
+        if (options.includes(val)) return; 
+        
+        if (val.match(/^\d{4}/)) {
+            let matchCode = val.substring(0,4);
+            let match = options.find(opt => opt.startsWith(matchCode));
+            if (match) {
+                this.value = match;
+                checkSpecialMcc(); toggleOtherMcc(); checkEmptyFields();
+                return;
+            }
+        }
+        
+        let lowerVal = val.toLowerCase();
+        let textMatch = options.find(opt => opt.toLowerCase().includes(lowerVal));
+        if (textMatch && val.length >= 3) { 
+            this.value = textMatch;
+            checkSpecialMcc(); toggleOtherMcc(); checkEmptyFields();
+            return;
+        }
+        
+        if (val !== "Loading MCCs...") {
+            alert('⚠️ Please select a valid option from the MCC dropdown list.');
+            this.value = '';
+            checkSpecialMcc(); toggleOtherMcc(); checkEmptyFields();
+        }
+    });
+
+    const syncScrollTables = document.querySelectorAll('.sync-scroll');
+    syncScrollTables.forEach(table => {
+        table.addEventListener('scroll', (e) => {
+            const activeTable = e.target;
+            syncScrollTables.forEach(otherTable => {
+                if (otherTable !== activeTable && otherTable.scrollLeft !== activeTable.scrollLeft) {
+                    otherTable.scrollLeft = activeTable.scrollLeft;
+                }
+            });
+        });
+    });
+});
+
+document.addEventListener('keydown', function(e) {
+    if (!currentUser || document.getElementById('loginModal').style.display === 'flex') return;
+
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault(); 
+        saveRecord();
+    }
+    
+    if (e.key === 'Enter') {
+        let activeEl = document.activeElement;
+        if (activeEl.tagName === 'BUTTON' || 
+            activeEl.id === 'record_search' || 
+            activeEl.id === 'conflict_new_name' || 
+            activeEl.id === 'mcc') {
+            return;
+        }
+        e.preventDefault();
+        submitCalculation();
+    }
+});
+
+const resetIdleTimer = () => { idleTime = 0; };
+
+window.onload = () => {
+    const savedUser = sessionStorage.getItem('calcCurrentUser');
+    const loginTime = sessionStorage.getItem('calcLoginTime');
+    
+    if (savedUser && loginTime) {
+        if (Date.now() - loginTime < 43200000) {
+            currentUser = savedUser;
+            document.getElementById('display_user_name').innerText = currentUser;
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            
+            applyStoredTheme();
+
+            fetchMccs();
+            fetchUpdates(); 
+            
+            setInterval(() => {
+                idleTime++;
+                if (idleTime >= 240 && currentUser) { 
+                    alert("Session expired due to inactivity (4 hours). For security, you have been logged out.");
+                    logout();
+                }
+            }, 60000); 
+            
+            document.addEventListener('mousemove', resetIdleTimer);
+            document.addEventListener('keypress', resetIdleTimer);
+        } else {
+            sessionStorage.clear();
+        }
+    }
+    toggleShopify();
+};
+
+function exportToImage() {
+    if (document.getElementById('tables_container').classList.contains('stale-result')) {
+        if(!confirm("⚠️ Note: The current results may not be calculated or have changed. Are you sure you want to export?")) return;
+    }
+
+    setActionState(true, 'btn_export', 'Exporting...');
+    
+    const appContainer = document.getElementById('appContainer');
+    const controls = document.querySelector('.sticky-controls');
+    controls.style.display = 'none';
+
+    const viewportMeta = document.querySelector('meta[name="viewport"]');
+    const originalViewport = viewportMeta.content;
+    viewportMeta.content = "width=1400, initial-scale=1.0";
+
+    const wrappers = document.querySelectorAll('.table-wrapper');
+    wrappers.forEach(w => w.style.overflowX = 'visible');
+
+    const panels = document.querySelectorAll('.panel, .result-card');
+    panels.forEach(p => p.style.overflow = 'visible');
+
+    const mccInfoBox = document.getElementById('mcc_info_box');
+    const origMccInfoDisplay = mccInfoBox.style.display;
+    mccInfoBox.style.display = 'none';
+
+    const updatePanel = document.getElementById('update_history_container').closest('.panel');
+    const origPanelDisplay = updatePanel.innerHTML; 
+    const origPadding = updatePanel.style.padding;
+
+    const firstVersionEl = document.querySelector('.update-version');
+    const latestVersionText = firstVersionEl ? firstVersionEl.innerText : 'Version ID: Unknown';
+
+    updatePanel.innerHTML = `
+        <h2 style="border-bottom:none; padding-bottom:0; margin-bottom:5px; font-size:16px;">System Info</h2>
+        <div style="color: #718096; font-size: 13px; font-weight: bold;">${latestVersionText}</div>
+    `;
+    updatePanel.style.padding = '15px 25px';
+
+    setTimeout(() => {
+        html2canvas(appContainer, { 
+            scale: 2, 
+            backgroundColor: document.body.classList.contains('dark-mode') ? '#1a202c' : '#f4f6f9', 
+            useCORS: true,
+            windowWidth: 1400 
+        }).then(canvas => {
+            viewportMeta.content = originalViewport;
+            controls.style.display = 'flex';
+            
+            wrappers.forEach(w => w.style.overflowX = 'auto');
+            panels.forEach(p => p.style.overflow = 'hidden');
+            
+            updatePanel.innerHTML = origPanelDisplay;
+            updatePanel.style.padding = origPadding;
+            mccInfoBox.style.display = origMccInfoDisplay;
+
+            const mName = document.getElementById('merchant_name').value.trim() || 'Merchant';
+            const now = new Date();
+            const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+            
+            const link = document.createElement('a');
+            link.download = `QFCCL_${mName}_${dateStr}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+            
+            setActionState(false);
+            showToast("📷 Image generated!", "#38a169");
+            
+            window.scrollTo(0, 0);
+        }).catch(err => {
+            viewportMeta.content = originalViewport;
+            controls.style.display = 'flex';
+            wrappers.forEach(w => w.style.overflowX = 'auto');
+            panels.forEach(p => p.style.overflow = 'hidden');
+            updatePanel.innerHTML = origPanelDisplay;
+            updatePanel.style.padding = origPadding;
+            mccInfoBox.style.display = origMccInfoDisplay;
+            
+            setActionState(false);
+            alert("Export failed. Please try again later.\n" + err.message);
+        });
+    }, 800); 
+}
+
+function fetchUpdates() {
+    fetch(API_URL, {
+        method: 'POST',
+        headers: supabaseHeaders,
+        body: JSON.stringify({ action: "get_updates" })
+    }).then(r => r.json()).then(res => {
+        if(res.status === "success") {
+            const container = document.getElementById('update_history_container');
+            container.innerHTML = '';
+            if(res.data.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #a0aec0; padding: 20px;">No recent updates.</div>';
+                return;
+            }
+            
+            let updatesData = res.data.reverse();
+
+            updatesData.forEach((group, index) => {
+                let marginTop = index > 0 ? '25px' : '0';
+                let html = `<div class="update-version" style="margin-top: ${marginTop};">Version ID: ${group.version}</div>`;
+                
+                group.items.forEach(item => {
+                    let color = "#718096"; 
+                    let cat = item.category.toLowerCase();
+                    if(cat.includes('ui') || cat.includes('feature')) color = "#3182ce"; 
+                    else if(cat.includes('wallet') || cat.includes('new')) color = "#38a169"; 
+                    else if(cat.includes('rate') || cat.includes('cost') || cat.includes('bug')) color = "#e53e3e"; 
+
+                    html += `<div class="update-item"><span class="update-category" style="background-color: ${color};">${item.category}</span><span class="update-desc">${item.desc}</span></div>`;
+                });
+                container.innerHTML += html;
+            });
+        }
+    }).catch(e => console.log("Failed to load updates"));
+}
 
 function fetchMccs() {
     fetch(API_URL, {
@@ -470,7 +760,7 @@ function fetchMccs() {
 // 🔥 新增：打開與關閉 Special MCC 彈窗功能
 function openSpecialMccModal() {
     document.getElementById('specialMccModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // 防止手機背景滾動
+    document.body.style.overflow = 'hidden'; 
 }
 
 function closeSpecialMccModal() {
@@ -509,7 +799,542 @@ function renderSpecialMccTable() {
     });
 }
 
-// ... 下方全部保留原有的 checkSpecialMcc, submitCalculation 等邏輯 ...
+function checkSpecialMcc() {
+    let mccInput = document.getElementById('mcc');
+    let val = mccInput.value;
+    let targetMcc = val.includes("Others") ? document.getElementById('other_mcc').value : val.substring(0, 4);
+    
+    const infoBox = document.getElementById('mcc_info_box');
+    
+    if (!targetMcc || targetMcc.length < 4) {
+        setBadge('v', 'grey'); setBadge('m', 'grey'); setBadge('u', 'grey'); 
+        infoBox.style.display = 'none'; 
+        return;
+    }
+
+    if (specialMccs.v.includes(targetMcc)) setBadge('v', 'special'); else setBadge('v', 'normal');
+    if (specialMccs.m.includes(targetMcc)) setBadge('m', 'special'); else setBadge('m', 'normal');
+    if (specialMccs.u.includes(targetMcc)) setBadge('u', 'special'); else setBadge('u', 'normal');
+
+    if (mccDetailsMap[targetMcc]) {
+        document.getElementById('mcc_desc_text').innerText = mccDetailsMap[targetMcc].desc;
+        document.getElementById('mcc_included_text').innerText = mccDetailsMap[targetMcc].included;
+        infoBox.style.display = 'block';
+    } else {
+        infoBox.style.display = 'none';
+    }
+}
+
+function setBadge(brand, state) {
+    const el = document.getElementById(`badge_${brand}`);
+    if (state === 'grey') {
+        el.style.background = '#edf2f7'; el.style.color = '#a0aec0'; el.style.borderColor = '#e2e8f0';
+        el.innerText = brand === 'v' ? 'Visa' : brand === 'm' ? 'Mastercard' : 'UnionPay';
+    } else if (state === 'special') {
+        if(brand==='v') { el.style.background = '#ebf4ff'; el.style.color = '#1a1f71'; el.style.borderColor = '#90cdf4'; el.innerText = 'Visa: Special'; }
+        if(brand==='m') { el.style.background = '#fffaf0'; el.style.color = '#ff5f00'; el.style.borderColor = '#fbd38d'; el.innerText = 'MC: Special'; }
+        if(brand==='u') { el.style.background = '#e6fffa'; el.style.color = '#007d79'; el.style.borderColor = '#81e6d9'; el.innerText = 'CUP: Special'; }
+    } else {
+        el.style.background = '#f7fafc'; el.style.color = '#718096'; el.style.borderColor = '#e2e8f0';
+        el.innerText = (brand==='v'?'Visa':brand==='m'?'Mastercard':'UnionPay') + ': Std.';
+    }
+}
+
+// 🔥 修正：這裡是之前被切斷的 attemptLogin 函數
+function attemptLogin() {
+    const userInput = document.getElementById('login_user');
+    const passInput = document.getElementById('login_pass');
+    const user = userInput.value.trim();
+    const pass = passInput.value.trim();
+    const errObj = document.getElementById('login_error');
+    const btn = document.getElementById('btn_do_login');
+    
+    if(!user || !pass) { errObj.innerText = "Please enter username and password."; errObj.style.display = 'block'; return; }
+    
+    btn.innerText = "Verifying..."; 
+    errObj.style.display = 'none';
+    userInput.disabled = true;
+    passInput.disabled = true;
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'not-allowed';
+
+    fetch(API_URL, {
+        method: 'POST',
+        headers: supabaseHeaders,
+        body: JSON.stringify({ action: "login", username: user, password: pass })
+    })
+    .then(r => r.json()).then(res => {
+        if(res.status === "success") {
+            currentUser = user;
+            sessionStorage.setItem('calcCurrentUser', user);
+            sessionStorage.setItem('calcLoginTime', Date.now()); 
+            document.getElementById('display_user_name').innerText = currentUser;
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('appContainer').style.display = 'block';
+            
+            applyStoredTheme();
+
+            showToast(`Welcome, ${user}!`, "#3182ce");
+            fetchMccs();
+            fetchUpdates(); 
+            
+            setInterval(() => {
+                idleTime++;
+                if (idleTime >= 240 && currentUser) { 
+                    alert("Session expired due to inactivity (4 hours). For security, you have been logged out.");
+                    logout();
+                }
+            }, 60000);
+            document.addEventListener('mousemove', resetIdleTimer);
+            document.addEventListener('keypress', resetIdleTimer);
+
+        } else {
+            errObj.innerText = res.message; errObj.style.display = 'block';
+            btn.innerText = "Log In";
+            userInput.disabled = false;
+            passInput.disabled = false;
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        }
+    }).catch(err => {
+        errObj.innerText = "Connection error."; errObj.style.display = 'block';
+        btn.innerText = "Log In";
+        userInput.disabled = false;
+        passInput.disabled = false;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+    });
+}
+
+function logout() { 
+    sessionStorage.clear(); 
+    currentUser = null;
+    
+    document.getElementById('appContainer').style.display = 'none';
+    document.getElementById('loginModal').style.display = 'flex';
+    
+    document.getElementById('login_user').value = '';
+    document.getElementById('login_pass').value = '';
+    document.getElementById('login_error').style.display = 'none';
+    
+    const btn = document.getElementById('btn_do_login');
+    btn.innerText = "Log In";
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    document.getElementById('login_user').disabled = false;
+    document.getElementById('login_pass').disabled = false;
+    
+    document.body.classList.remove('dark-mode');
+    document.getElementById('btn_theme').innerText = '🌙';
+}
+
+let pendingSaveName = "";
+let pendingExistingNames = [];
+
+function saveRecord() {
+    const mName = document.getElementById('merchant_name').value.trim() || 'Merchant';
+    const d = new Date();
+    const defaultName = `${mName}_${("0"+d.getDate()).slice(-2)}${("0"+(d.getMonth()+1)).slice(-2)}${d.getFullYear()}`;
+    
+    let recordName = prompt("Enter a name to save to Cloud:", defaultName);
+    if (!recordName || recordName.trim() === "") return;
+    recordName = recordName.trim();
+
+    setActionState(true, 'btn_cloud_save', 'Checking...');
+
+    fetch(API_URL, {
+        method: 'POST',
+        headers: supabaseHeaders,
+        body: JSON.stringify({ action: "load", username: currentUser })
+    })
+    .then(r => r.json()).then(res => {
+        if(res.status === "success" && res.data.length > 0) {
+            pendingExistingNames = res.data.map(item => item.recordName);
+            if(pendingExistingNames.includes(recordName)) {
+                setActionState(false);
+                pendingSaveName = recordName;
+                document.getElementById('conflict_record_name').innerText = `"${recordName}"`;
+                document.getElementById('saveConflictModal').style.display = 'flex';
+                document.getElementById('new_copy_input_area').style.display = 'none';
+                document.getElementById('conflict_buttons_area').style.display = 'flex';
+                document.getElementById('confirm_new_copy_area').style.display = 'none';
+                return; 
+            }
+        }
+        pendingSaveName = recordName;
+        executeFinalSave('replace'); 
+    }).catch(err => { 
+        setActionState(false);
+        alert("Network Error while checking records."); 
+    });
+}
+
+function closeSaveConflict() { 
+    document.getElementById('saveConflictModal').style.display = 'none'; 
+    setModalButtonsState(false); 
+}
+
+function triggerReplace() { 
+    executeFinalSave('replace'); 
+}
+
+function triggerSaveNewCopy() {
+    let i = 1;
+    while(pendingExistingNames.includes(`${pendingSaveName} (${i})`)) { i++; }
+    document.getElementById('conflict_new_name').value = `${pendingSaveName} (${i})`;
+    document.getElementById('conflict_buttons_area').style.display = 'none';
+    document.getElementById('new_copy_input_area').style.display = 'block';
+    document.getElementById('confirm_new_copy_area').style.display = 'flex';
+    document.getElementById('conflict_new_name').focus();
+}
+
+function executeFinalSave(mode) {
+    let finalName = pendingSaveName;
+    if (mode === 'new') {
+        finalName = document.getElementById('conflict_new_name').value.trim();
+        if (!finalName) return; 
+    }
+
+    setModalButtonsState(true); 
+    setActionState(true, 'btn_cloud_save', 'Saving...');
+
+    const draftData = {
+        basic: {
+            merchant_name: document.getElementById('merchant_name').value, mcc: document.getElementById('mcc').value,
+            other_mcc: document.getElementById('other_mcc').value, currency: document.getElementById('currency').value,
+            ticket_size: document.getElementById('ticket_size').value, model: document.getElementById('model').value,
+            shopify: document.getElementById('shopify').value, fraudsight: document.getElementById('fraudsight').value,
+            _3ds: document.getElementById('3ds').value, token: document.getElementById('token').value,
+            visa_overall: document.getElementById('visa_overall_pct').value, master_overall: document.getElementById('master_overall_pct').value
+        },
+        distributions: {
+            visa: Array.from(document.querySelectorAll('.v-pct')).map(el => el.value),
+            master: Array.from(document.querySelectorAll('.m-pct')).map(el => el.value),
+            up: Array.from(document.querySelectorAll('.u-pct')).map(el => el.value)
+        }
+    };
+
+    fetch(API_URL, {
+        method: 'POST',
+        headers: supabaseHeaders,
+        body: JSON.stringify({ action: "save", username: currentUser, recordName: finalName, data: draftData })
+    }).then(r => r.json()).then(saveRes => {
+        setActionState(false);
+        setModalButtonsState(false);
+        closeSaveConflict();
+        if(saveRes.status === "success") showToast(`☁️ Saved as "${finalName}"`, "#38a169");
+        else alert(saveRes.message);
+    }).catch(err => { 
+        setActionState(false);
+        setModalButtonsState(false);
+        closeSaveConflict();
+        alert("Network Error while saving."); 
+    });
+}
+
+function filterRecords() {
+    let input = document.getElementById('record_search').value.toLowerCase();
+    let items = document.querySelectorAll('#draftList .draft-item');
+    items.forEach(item => {
+        let name = item.querySelector('.draft-name').innerText.toLowerCase();
+        if (name.includes(input)) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function openLoadModal() {
+    setActionState(true, 'btn_cloud_load', 'Loading...');
+    document.getElementById('loadModal').style.display = 'flex';
+    const searchInput = document.getElementById('record_search');
+    if(searchInput) searchInput.value = '';
+
+    let listEl = document.getElementById('draftList');
+    listEl.innerHTML = '<li style="text-align:center; padding: 20px; color:#a0aec0;">Loading from cloud... ⏳</li>';
+
+    fetch(API_URL, {
+        method: 'POST',
+        headers: supabaseHeaders,
+        body: JSON.stringify({ action: "load", username: currentUser })
+    })
+    .then(r => r.json()).then(res => {
+        setActionState(false);
+        listEl.innerHTML = '';
+        if(res.status === "success" && res.data.length > 0) {
+            res.data.reverse().forEach(item => {
+                let li = document.createElement('li'); li.className = 'draft-item';
+                let infoDiv = document.createElement('div'); infoDiv.className = 'draft-name';
+                infoDiv.onclick = () => loadSpecificRecord(item.recordName, item.jsonData);
+                infoDiv.innerHTML = `${item.recordName} <span class="draft-date">${item.timestamp}</span>`;
+                let delBtn = document.createElement('button'); delBtn.className = 'btn-delete-draft'; delBtn.innerText = 'Delete';
+                delBtn.onclick = (e) => { e.stopPropagation(); deleteRecord(item.recordName); };
+                li.appendChild(infoDiv); li.appendChild(delBtn); listEl.appendChild(li);
+            });
+        } else {
+            listEl.innerHTML = '<li style="text-align:center; padding: 20px; color:#a0aec0;">No saved records found.</li>';
+        }
+    }).catch(err => { 
+        setActionState(false);
+        listEl.innerHTML = '<li style="text-align:center; color:red;">Failed to load.</li>'; 
+    });
+}
+
+function loadSpecificRecord(name, draftStr) {
+    try {
+        const draft = JSON.parse(draftStr);
+        document.getElementById('merchant_name').value = draft.basic.merchant_name || '';
+        document.getElementById('mcc').value = draft.basic.mcc || ''; document.getElementById('other_mcc').value = draft.basic.other_mcc || '';
+        document.getElementById('currency').value = draft.basic.currency || 'HKD'; document.getElementById('ticket_size').value = draft.basic.ticket_size || '';
+        document.getElementById('model').value = draft.basic.model || ''; 
+        document.getElementById('shopify').value = draft.basic.shopify || '';
+        document.getElementById('fraudsight').value = draft.basic.fraudsight || 'Y'; document.getElementById('3ds').value = draft.basic._3ds || 'Y';
+        document.getElementById('token').value = draft.basic.token || 'N';
+        document.getElementById('visa_overall_pct').value = draft.basic.visa_overall || '50'; document.getElementById('master_overall_pct').value = draft.basic.master_overall || '50';
+
+        const vInputs = document.querySelectorAll('.v-pct'); if(draft.distributions.visa) draft.distributions.visa.forEach((val, i) => { if(vInputs[i]) vInputs[i].value = val; });
+        const mInputs = document.querySelectorAll('.m-pct'); if(draft.distributions.master) draft.distributions.master.forEach((val, i) => { if(mInputs[i]) mInputs[i].value = val; });
+        const uInputs = document.querySelectorAll('.u-pct'); if(draft.distributions.up) draft.distributions.up.forEach((val, i) => { if(uInputs[i]) uInputs[i].value = val; });
+
+        toggleOtherMcc(); checkEmptyFields(); checkSpecialMcc(); calcVisa(); calcMaster(); calcUP(); calcOverall();
+        toggleShopify(); 
+        markResultStale(); 
+        closeLoadModal(); 
+        showToast(`☁️ Record loaded!`, "#3182ce");
+
+        setTimeout(() => { submitCalculation(); }, 300);
+
+    } catch(e) { alert("Data parsing error"); }
+}
+
+function deleteRecord(recordName) {
+    if(!confirm(`Delete cloud record "${recordName}"?`)) return;
+    fetch(API_URL, {
+        method: 'POST',
+        headers: supabaseHeaders,
+        body: JSON.stringify({ action: "delete", username: currentUser, recordName: recordName })
+    }).then(r => r.json()).then(res => {
+        if(res.status === "success") { showToast(`🗑️ Deleted.`, "#e53e3e"); openLoadModal(); }
+    });
+}
+
+function closeLoadModal() { 
+    document.getElementById('loadModal').style.display = 'none'; 
+    setActionState(false);
+}
+function resetForm() { if(confirm("Clear all fields?")) window.location.reload(); }
+function showToast(message, bgColor = "#333333") {
+    const t = document.getElementById("toast"); t.innerText = message; t.style.backgroundColor = bgColor;
+    t.className = "show"; setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+}
+
+function checkEmptyFields() { 
+    document.querySelectorAll('.basic-info-field').forEach(f => { 
+        if(!f.value && !f.disabled) f.classList.add('empty-field'); 
+        else f.classList.remove('empty-field'); 
+    }); 
+}
+
+document.querySelectorAll('.basic-info-field').forEach(f => { 
+    f.addEventListener('change', checkEmptyFields); 
+    f.addEventListener('input', checkEmptyFields); 
+});
+
+function toggleOtherMcc() {
+    const m = document.getElementById('mcc').value, og = document.getElementById('other_mcc_group'), oi = document.getElementById('other_mcc');
+    if (m.includes('Others')) { og.style.display = 'block'; oi.classList.add('basic-info-field'); } 
+    else { og.style.display = 'none'; oi.value = ''; oi.classList.remove('basic-info-field'); oi.classList.remove('empty-field'); }
+    checkEmptyFields();
+}
+
+function toggleShopify() {
+    const modelObj = document.getElementById('model');
+    const shopifyObj = document.getElementById('shopify');
+    
+    if (modelObj.value === "Online") {
+        shopifyObj.disabled = false;
+    } else if (modelObj.value === "Offline") {
+        shopifyObj.value = "N";
+        shopifyObj.disabled = true;
+    } else {
+        shopifyObj.value = "";
+        shopifyObj.disabled = true;
+    }
+    shopifyObj.style.backgroundColor = ""; 
+    checkEmptyFields();
+}
+
+function formatCurrency(i) { if(i.value) i.value = parseFloat(i.value).toFixed(2); }
+
+function fillZero(e) { 
+    if(e.value === "" || parseFloat(e.value) < 0) {
+        e.value = "0"; 
+        e.dispatchEvent(new Event('input')); 
+    }
+}
+
+function calcOverall() { 
+    let v = parseFloat(document.getElementById('visa_overall_pct').value)||0; let m = parseFloat(document.getElementById('master_overall_pct').value)||0; 
+    document.getElementById('overall_error').style.display = (v+m!==100)?'block':'none'; 
+}
+
+function calcSum(c, tId, eId) { 
+    let inputs = document.getElementsByClassName(c);
+    let sum = 0; 
+    for(let j=0; j<inputs.length; j++) { sum += parseFloat(inputs[j].value) || 0; }
+    let totalSpan = document.getElementById(tId); 
+    if(totalSpan) { 
+        totalSpan.innerText = sum + " %"; 
+        const isDark = document.body.classList.contains('dark-mode');
+        const defaultColor = isDark ? '#e2e8f0' : '#2d3748';
+        const errorColor = isDark ? '#fc8181' : '#e53e3e';
+        totalSpan.style.color = (sum !== 100) ? errorColor : defaultColor; 
+    }
+    let errSpan = document.getElementById(eId);
+    if(errSpan) { errSpan.style.display = (sum !== 100) ? 'block' : 'none'; }
+}
+
+function calcVisa() { calcSum('v-pct', 'visa_total', 'visa_error'); } 
+function calcMaster() { calcSum('m-pct', 'master_total', 'master_error'); }
+function calcUP() { calcSum('u-pct', 'up_total', 'up_error'); }
+
+toggleOtherMcc(); checkEmptyFields(); calcVisa(); calcMaster(); calcUP(); calcOverall();
+
+function submitCalculation() {
+    checkEmptyFields();
+    const emptyFields = document.querySelectorAll('.empty-field');
+    if (emptyFields.length > 0) { 
+        alert("Please fill in all required fields highlighted in yellow.\n(Make sure Merchant Name, MCC, and Ticket Size are also filled!)"); 
+        return; 
+    }
+
+    document.querySelectorAll('.v-pct, .m-pct, .u-pct, .overall-pct').forEach(el => { if(el.value === "") el.value = "0"; });
+
+    let vSum = 0; document.querySelectorAll('.v-pct').forEach(e=>vSum+=parseFloat(e.value)||0);
+    let mSum = 0; document.querySelectorAll('.m-pct').forEach(e=>mSum+=parseFloat(e.value)||0);
+    let uSum = 0; document.querySelectorAll('.u-pct').forEach(e=>uSum+=parseFloat(e.value)||0);
+    let oSum = (parseFloat(document.getElementById('visa_overall_pct').value)||0) + (parseFloat(document.getElementById('master_overall_pct').value)||0);
+
+    const vValid = vSum === 100;
+    const mValid = mSum === 100;
+    const uValid = uSum === 100;
+    const oValid = oSum === 100;
+
+    if (!vValid && !mValid && !uValid) {
+        alert("Please accurately fill in the distribution (100%) for at least one card to calculate.");
+        return;
+    }
+
+    setActionState(true, 'btn_calc', 'Calculating...');
+
+    const requestData = {
+        action: "calculate", 
+        mcc: document.getElementById('mcc').value, otherMcc: document.getElementById('other_mcc').value, 
+        model: document.getElementById('model').value, currency: document.getElementById('currency').value,
+        shopify: document.getElementById('shopify').value, fraudsight: document.getElementById('fraudsight').value,
+        _3ds: document.getElementById('3ds').value, tokenisation: document.getElementById('token').value,
+        
+        v_l_c: document.getElementsByClassName('v-pct')[0].value, v_l_p: document.getElementsByClassName('v-pct')[1].value, v_l_s: document.getElementsByClassName('v-pct')[2].value,
+        v_i_c: document.getElementsByClassName('v-pct')[3].value, v_i_p: document.getElementsByClassName('v-pct')[4].value, v_i_s: document.getElementsByClassName('v-pct')[5].value, v_i_e: document.getElementsByClassName('v-pct')[6].value,
+        
+        m_l_c: document.getElementsByClassName('m-pct')[0].value, m_l_p: document.getElementsByClassName('m-pct')[1].value, m_l_s: document.getElementsByClassName('m-pct')[2].value,
+        m_i_c: document.getElementsByClassName('m-pct')[3].value, m_i_p: document.getElementsByClassName('m-pct')[4].value, m_i_s: document.getElementsByClassName('m-pct')[5].value, m_i_e: document.getElementsByClassName('m-pct')[6].value,
+
+        u_l_c: document.getElementsByClassName('u-pct')[0].value, u_l_p: document.getElementsByClassName('u-pct')[1].value, u_l_s: document.getElementsByClassName('u-pct')[2].value,
+        u_i_c: document.getElementsByClassName('u-pct')[3].value, u_i_p: document.getElementsByClassName('u-pct')[4].value, u_i_s: document.getElementsByClassName('u-pct')[5].value,
+    };
+
+    fetch(API_URL, { 
+        method: 'POST', 
+        headers: supabaseHeaders,
+        body: JSON.stringify(requestData) 
+    })
+    .then(r => r.json()).then(res => {
+        setActionState(false);
+        if (res.status === "success") { 
+            document.getElementById('tables_container').classList.remove('stale-result');
+            
+            document.querySelectorAll('.val').forEach(el => { el.style.opacity = "1"; });
+
+            const d = res.data;
+            const tSize = parseFloat(document.getElementById('ticket_size').value) || 0;
+            const isShopify = (document.getElementById('model').value === 'Online' && document.getElementById('shopify').value === 'Y');
+            const shopifyFee = isShopify ? 0.003 : 0;
+
+            if(d.v_l_tot > 0) d.v_l_pct += shopifyFee;
+            if(d.v_i_tot > 0) d.v_i_pct += shopifyFee;
+            if(d.m_l_tot > 0) d.m_l_pct += shopifyFee;
+            if(d.m_i_tot > 0) d.m_i_pct += shopifyFee;
+            if(d.up_l_tot > 0) { d.up_l_pct += shopifyFee; d.upqp_l_mpqr_pct += shopifyFee; d.upqp_l_cpqr_pct += shopifyFee; }
+            if(d.up_i_tot > 0) { d.up_i_pct += shopifyFee; d.upqp_i_pct += shopifyFee; }
+
+            const calcCvr = (pct, fix) => (tSize > 0 && pct > 0) ? ((fix/tSize) + pct) : 0;
+            const cleanFloat = (num) => Number(num.toPrecision(14));
+            const exactRound = (num) => +(Math.round(cleanFloat(num) + "e+2")  + "e-2");
+            const fmtP = (val) => val > 0 ? exactRound(val * 100).toFixed(2) + "%" : "-";
+            const fmtF = (val) => val > 0 ? "$" + exactRound(val).toFixed(2) : "-";
+
+            // Visa
+            document.getElementById('visa_local_pct').innerText = fmtP(d.v_l_pct); document.getElementById('visa_local_fix').innerText = fmtF(d.v_l_fix); document.getElementById('visa_local_cvr').innerText = fmtP(calcCvr(d.v_l_pct, d.v_l_fix));
+            document.getElementById('visa_int_pct').innerText = fmtP(d.v_i_pct); document.getElementById('visa_int_fix').innerText = fmtF(d.v_i_fix); document.getElementById('visa_int_cvr').innerText = fmtP(calcCvr(d.v_i_pct, d.v_i_fix));
+            let v_cmb_pct=0, v_cmb_fix=0; if(d.v_l_tot+d.v_i_tot > 0) { v_cmb_pct=(d.v_l_pct*d.v_l_tot+d.v_i_pct*d.v_i_tot)/(d.v_l_tot+d.v_i_tot); v_cmb_fix=(d.v_l_fix*d.v_l_tot+d.v_i_fix*d.v_i_tot)/(d.v_l_tot+d.v_i_tot); }
+            document.getElementById('visa_cmb_pct').innerText = fmtP(v_cmb_pct); document.getElementById('visa_cmb_fix').innerText = fmtF(v_cmb_fix); document.getElementById('visa_cmb_cvr').innerText = fmtP(calcCvr(v_cmb_pct, v_cmb_fix));
+
+            // Mastercard
+            document.getElementById('master_local_pct').innerText = fmtP(d.m_l_pct); document.getElementById('master_local_fix').innerText = fmtF(d.m_l_fix); document.getElementById('master_local_cvr').innerText = fmtP(calcCvr(d.m_l_pct, d.m_l_fix));
+            document.getElementById('master_int_pct').innerText = fmtP(d.m_i_pct); document.getElementById('master_int_fix').innerText = fmtF(d.m_i_fix); document.getElementById('master_int_cvr').innerText = fmtP(calcCvr(d.m_i_pct, d.m_i_fix));
+            let m_cmb_pct=0, m_cmb_fix=0; if(d.m_l_tot+d.m_i_tot > 0) { m_cmb_pct=(d.m_l_pct*d.m_l_tot+d.m_i_pct*d.m_i_tot)/(d.m_l_tot+d.m_i_tot); m_cmb_fix=(d.m_l_fix*d.m_l_tot+d.m_i_fix*d.m_i_tot)/(d.m_l_tot+d.m_i_tot); }
+            document.getElementById('master_cmb_pct').innerText = fmtP(m_cmb_pct); document.getElementById('master_cmb_fix').innerText = fmtF(m_cmb_fix); document.getElementById('master_cmb_cvr').innerText = fmtP(calcCvr(m_cmb_pct, m_cmb_fix));
+
+            // UnionPay
+            document.getElementById('up_local_pct').innerText = fmtP(d.up_l_pct); document.getElementById('up_local_fix').innerText = fmtF(d.up_l_fix); document.getElementById('up_local_cvr').innerText = fmtP(calcCvr(d.up_l_pct, d.up_l_fix));
+            document.getElementById('up_int_pct').innerText = fmtP(d.up_i_pct); document.getElementById('up_int_fix').innerText = fmtF(d.up_i_fix); document.getElementById('up_int_cvr').innerText = fmtP(calcCvr(d.up_i_pct, d.up_i_fix));
+            let u_cmb_pct=0, u_cmb_fix=0; if(d.up_l_tot+d.up_i_tot > 0) { u_cmb_pct=(d.up_l_pct*d.up_l_tot+d.up_i_pct*d.up_i_tot)/(d.up_l_tot+d.up_i_tot); u_cmb_fix=(d.up_l_fix*d.up_l_tot+d.up_i_fix*d.up_i_tot)/(d.up_l_tot+d.up_i_tot); }
+            document.getElementById('up_cmb_pct').innerText = fmtP(u_cmb_pct); document.getElementById('up_cmb_fix').innerText = fmtF(u_cmb_fix); document.getElementById('up_cmb_cvr').innerText = fmtP(calcCvr(u_cmb_pct, u_cmb_fix));
+
+            // UnionPay QuickPass
+            document.getElementById('upqp_local_mpqr_pct').innerText = fmtP(d.upqp_l_mpqr_pct); document.getElementById('upqp_local_mpqr_fix').innerText = fmtF(d.upqp_l_mpqr_fix); document.getElementById('upqp_local_mpqr_cvr').innerText = fmtP(calcCvr(d.upqp_l_mpqr_pct, d.upqp_l_mpqr_fix));
+            document.getElementById('upqp_local_cpqr_pct').innerText = fmtP(d.upqp_l_cpqr_pct); document.getElementById('upqp_local_cpqr_fix').innerText = fmtF(d.upqp_l_cpqr_fix); document.getElementById('upqp_local_cpqr_cvr').innerText = fmtP(calcCvr(d.upqp_l_cpqr_pct, d.upqp_l_cpqr_fix));
+            document.getElementById('upqp_int_pct').innerText = fmtP(d.upqp_i_pct); document.getElementById('upqp_int_fix').innerText = fmtF(d.upqp_i_fix); document.getElementById('upqp_int_cvr').innerText = fmtP(calcCvr(d.upqp_i_pct, d.upqp_i_fix));
+
+            // Weighted Average
+            let v_oa = parseFloat(document.getElementById('visa_overall_pct').value)/100 || 0;
+            let m_oa = parseFloat(document.getElementById('master_overall_pct').value)/100 || 0;
+            let w_l_pct = (d.v_l_pct*v_oa + d.m_l_pct*m_oa) / (v_oa+m_oa); let w_l_fix = (d.v_l_fix*v_oa + d.m_l_fix*m_oa) / (v_oa+m_oa);
+            document.getElementById('weighted_local_pct').innerText = fmtP(w_l_pct); document.getElementById('weighted_local_fix').innerText = fmtF(w_l_fix); document.getElementById('weighted_local_cvr').innerText = fmtP(calcCvr(w_l_pct, w_l_fix));
+            let w_i_pct = (d.v_i_pct*v_oa + d.m_i_pct*m_oa) / (v_oa+m_oa); let w_i_fix = (d.v_i_fix*v_oa + d.m_i_fix*m_oa) / (v_oa+m_oa);
+            document.getElementById('weighted_int_pct').innerText = fmtP(w_i_pct); document.getElementById('weighted_int_fix').innerText = fmtF(w_i_fix); document.getElementById('weighted_int_cvr').innerText = fmtP(calcCvr(w_i_pct, w_i_fix));
+            let w_cmb_pct = (v_cmb_pct*v_oa + m_cmb_pct*m_oa) / (v_oa+m_oa); let w_cmb_fix = (v_cmb_fix*v_oa + m_cmb_fix*m_oa) / (v_oa+m_oa);
+            document.getElementById('weighted_cmb_pct').innerText = fmtP(w_cmb_pct); document.getElementById('weighted_cmb_fix').innerText = fmtF(w_cmb_fix); document.getElementById('weighted_cmb_cvr').innerText = fmtP(calcCvr(w_cmb_pct, w_cmb_fix));
+
+            // Higher
+            document.getElementById('higher_local_pct').innerText = fmtP(Math.max(d.v_l_pct, d.m_l_pct)); document.getElementById('higher_local_fix').innerText = fmtF(Math.max(d.v_l_fix, d.m_l_fix)); document.getElementById('higher_local_cvr').innerText = fmtP(calcCvr(Math.max(d.v_l_pct, d.m_l_pct), Math.max(d.v_l_fix, d.m_l_fix)));
+            document.getElementById('higher_int_pct').innerText = fmtP(Math.max(d.v_i_pct, d.m_i_pct)); document.getElementById('higher_int_fix').innerText = fmtF(Math.max(d.v_i_fix, d.m_i_fix)); document.getElementById('higher_int_cvr').innerText = fmtP(calcCvr(Math.max(d.v_i_pct, d.m_i_pct), Math.max(d.v_i_fix, d.m_i_fix)));
+            document.getElementById('higher_cmb_pct').innerText = fmtP(Math.max(v_cmb_pct, m_cmb_pct)); document.getElementById('higher_cmb_fix').innerText = fmtF(Math.max(v_cmb_fix, m_cmb_fix)); document.getElementById('higher_cmb_cvr').innerText = fmtP(calcCvr(Math.max(v_cmb_pct, m_cmb_pct), Math.max(v_cmb_fix, m_cmb_fix)));
+
+            const setSectionGray = (prefix) => {
+                const cells = document.querySelectorAll(`[id^="${prefix}"]`);
+                cells.forEach(el => { 
+                    el.innerText = "-"; 
+                    el.style.opacity = "0.2"; 
+                });
+            };
+
+            if (!vValid) setSectionGray('visa_');
+            if (!mValid) setSectionGray('master_');
+            if (!uValid) { setSectionGray('up_'); setSectionGray('upqp_'); }
+            if (!vValid || !mValid || !oValid) { setSectionGray('weighted_'); setSectionGray('higher_'); }
+
+            showToast("Calculation Complete! 📊", "#38a169");
+        } 
+        else { alert("Backend error:\n" + res.message); }
+    }).catch(err => { setActionState(false); alert("Network connection failed."); });
+}
 </script>
 </body>
 </html>
