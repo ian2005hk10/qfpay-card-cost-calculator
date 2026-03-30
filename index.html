@@ -155,7 +155,7 @@ html, body {
     .btn-theme-toggle:hover { background: rgba(255,255,255,0.1); }
 
     /* 🔥 新增：Special MCC Modal 專用寬度 */
-    .special-mcc-modal { width: 950px; max-width: 95%; }
+    .special-mcc-modal { width: 1000px; max-width: 95%; }
 
     /* ==================================================== */
     /* 🔥 DARK MODE (完全移除 !important，利用原生權重) */
@@ -607,8 +607,8 @@ html, body {
             <table class="dist-table" id="special_mcc_table">
                 <thead style="position: sticky; top: 0; z-index: 10;">
                     <tr>
-                        <th rowspan="2" style="width: 8%;">MCC</th>
                         <th rowspan="2" style="width: 20%; text-align: left;">Segment</th>
+                        <th rowspan="2" style="width: 8%;">MCC</th>
                         <th rowspan="2" style="width: 32%; text-align: left;">Description</th>
                         <th colspan="2" class="bg-visa">Visa</th>
                         <th colspan="2" class="bg-master">Mastercard</th>
@@ -673,7 +673,7 @@ let currentUser = null;
 let specialMccs = { v: [], m: [], u: [] };
 let mccDetailsMap = {};
 let idleTime = 0; 
-let specialMccDetailedList = []; // 🔥 用來存放完整的 Special MCC 表格資料
+let specialMccDetailedList = []; 
 
 function applyStoredTheme() {
     const savedTheme = localStorage.getItem('qfpay_theme');
@@ -1002,14 +1002,12 @@ function fetchMccs() {
             specialMccs.u = res.cupSpecial || [];
             mccDetailsMap = res.mccDetails || {}; 
             
-            // 🔥 新增：接收後端傳來的詳細表格資料並渲染
             specialMccDetailedList = res.detailedList || [];
             renderSpecialMccTable();
         }
     }).catch(e => console.log("Failed to load MCCs"));
 }
 
-// 🔥 新增：打開與關閉 Special MCC 彈窗功能
 function openSpecialMccModal() {
     document.getElementById('specialMccModal').style.display = 'flex';
     document.body.style.overflow = 'hidden'; 
@@ -1020,7 +1018,7 @@ function closeSpecialMccModal() {
     document.body.style.overflow = 'auto'; 
 }
 
-// 🔥 新增：動態渲染 9 欄位的 Special MCC 列表
+// 🔥 新增：動態渲染，包含 Segment 的合併儲存格 (rowSpan) 與 Recurring 判斷
 function renderSpecialMccTable() {
     const tbody = document.querySelector('#special_mcc_table tbody');
     tbody.innerHTML = '';
@@ -1032,21 +1030,75 @@ function renderSpecialMccTable() {
 
     const isDark = document.body.classList.contains('dark-mode');
 
-    specialMccDetailedList.forEach(item => {
-        const tr = document.createElement('tr');
-        const renderCheck = (val) => val === 'Y' ? '✅' : '<span style="color:#cbd5e0;">-</span>';
+    // 1. 進行排序：先按 Segment 名稱，再按 MCC 號碼
+    let sortedList = [...specialMccDetailedList].sort((a, b) => {
+        let segA = (a.segment || "").toLowerCase();
+        let segB = (b.segment || "").toLowerCase();
+        if (segA < segB) return -1;
+        if (segA > segB) return 1;
+        
+        let mccA = parseInt(a.mcc) || 0;
+        let mccB = parseInt(b.mcc) || 0;
+        return mccA - mccB;
+    });
 
-        tr.innerHTML = `
-            <td style="font-weight:bold; color: ${isDark ? '#90cdf4' : '#2b6cb0'}; text-align:center;">${item.mcc}</td>
-            <td style="text-align:left; font-size:11px; line-height: 1.3;">${item.segment}</td>
-            <td style="text-align:left; font-size:11px; line-height: 1.4;">${item.desc}</td>
-            <td style="text-align:center;">${renderCheck(item.vOn)}</td>
-            <td style="text-align:center;">${renderCheck(item.vOff)}</td>
-            <td style="text-align:center;">${renderCheck(item.mOn)}</td>
-            <td style="text-align:center;">${renderCheck(item.mOff)}</td>
-            <td style="text-align:center;">${renderCheck(item.uLoc)}</td>
-            <td style="text-align:center;">${renderCheck(item.uInt)}</td>
+    let currentSegment = null;
+    let currentSegmentTd = null;
+
+    sortedList.forEach(item => {
+        const tr = document.createElement('tr');
+        
+        // 2. 判斷是否為 Recurring Payments
+        const isRecurring = (item.segment || "").toLowerCase().includes('recurring');
+        
+        // 渲染 ✅ 和 recurring 提示
+        const renderCheck = (val) => {
+            if (val === 'Y') {
+                return isRecurring ? '✅<br><span style="font-size:9px; color:#e53e3e; font-weight:bold; white-space:nowrap;">recurring only</span>' : '✅';
+            }
+            return '<span style="color:#cbd5e0;">-</span>';
+        };
+
+        // 3. 處理 Segment 合併儲存格 (rowSpan)
+        if (item.segment !== currentSegment) {
+            currentSegment = item.segment;
+            
+            const tdSegment = document.createElement('td');
+            tdSegment.style.textAlign = 'left';
+            tdSegment.style.fontSize = '12px';
+            tdSegment.style.fontWeight = 'bold';
+            tdSegment.style.lineHeight = '1.3';
+            tdSegment.style.verticalAlign = 'middle';
+            tdSegment.style.backgroundColor = isDark ? '#2d3748' : '#f8fafc'; // 加上底色區分
+            tdSegment.innerHTML = item.segment || '-';
+            
+            currentSegmentTd = tdSegment;
+            tr.appendChild(tdSegment);
+        } else {
+            // 如果跟上一列的 segment 一樣，就把上一個 TD 的 rowSpan 加 1，不用再 append 該欄位
+            if (currentSegmentTd) {
+                currentSegmentTd.rowSpan = (currentSegmentTd.rowSpan || 1) + 1;
+            }
+        }
+
+        // 4. 插入其餘的欄位
+        const restOfRow = document.createElement('template');
+        restOfRow.innerHTML = `
+            <td style="font-weight:bold; color: ${isDark ? '#90cdf4' : '#2b6cb0'}; text-align:center; vertical-align:middle;">${item.mcc}</td>
+            <td style="text-align:left; font-size:11px; line-height: 1.4; vertical-align:middle;">${item.desc}</td>
+            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.vOn)}</td>
+            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.vOff)}</td>
+            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.mOn)}</td>
+            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.mOff)}</td>
+            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.uLoc)}</td>
+            <td style="text-align:center; vertical-align:middle;">${renderCheck(item.uInt)}</td>
         `;
+        
+        // 將 template 內的 td 加進目前的 tr
+        while(restOfRow.content.firstChild) {
+            tr.appendChild(restOfRow.content.firstChild);
+        }
+        
         tbody.appendChild(tr);
     });
 }
