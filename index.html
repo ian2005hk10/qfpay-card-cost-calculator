@@ -348,7 +348,231 @@ html, body {
             </div>
         </div>
 
-        <div class="panel" style="display:none;"></div>
+        <div class="panel">
+            <h2>2. Card Transaction Distribution</h2>
+            <div class="form-row alloc-box">
+                <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0;">
+                    <label style="margin-bottom: 0;">Visa Overall Allocation</label>
+                    <div class="input-percent-group"><input type="number" min="0" id="visa_overall_pct" value="50" class="overall-pct" oninput="calcOverall()" onblur="fillZero(this)"> <span style="color:#718096; margin-left:3px;">%</span></div>
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0;">
+                    <label style="margin-bottom: 0;">Mastercard Overall Allocation</label>
+                    <div class="input-percent-group"><input type="number" min="0" id="master_overall_pct" value="50" class="overall-pct" oninput="calcOverall()" onblur="fillZero(this)"> <span style="color:#718096; margin-left:3px;">%</span></div>
+                </div>
+            </div>
+            <div id="overall_error" class="error-text" style="margin-top: -10px; margin-bottom: 15px;">⚠️ The sum of Visa and Mastercard allocations must be exactly 100%!</div>
+
+            <div class="table-wrapper">
+                <table class="dist-table">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="width: 12%;">Region</th>
+                            <th rowspan="2" style="width: 40%;">Card Tier</th>
+                            <th colspan="3" style="padding: 5px; border-bottom: 1px solid #cbd5e0;">Allocation (%)</th>
+                        </tr>
+                        <tr>
+                            <th class="bg-visa" style="width: 16%;">Visa</th>
+                            <th class="bg-master" style="width: 16%;">Mastercard</th>
+                            <th class="bg-up" style="width: 16%;">UnionPay</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3" class="region-cell">Local Card</td>
+                            <td class="tier-cell">Prepaid Card, Debit Card, Electron, Classic/Gold Credit</td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="v-pct" value="0" oninput="calcVisa()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="m-pct" value="0" oninput="calcMaster()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="u-pct" value="0" oninput="calcUP()" onblur="fillZero(this)"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="tier-cell">Premium (Platinum)</td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="v-pct" value="0" oninput="calcVisa()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="m-pct" value="0" oninput="calcMaster()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="u-pct" value="0" oninput="calcUP()" onblur="fillZero(this)"></div></td>
+                        </tr>
+                        <tr class="section-divider">
+                            <td class="tier-cell" style="padding-top: 10px; padding-bottom: 10px;">
+                                Super Premium/Corporate (Signature, Infinite)<br>
+                                <span style="font-size: 10.5px; color: #718096; font-weight: 600;">* UnionPay: Diamond Credit</span>
+                            </td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="v-pct" value="0" oninput="calcVisa()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="m-pct" value="0" oninput="calcMaster()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="u-pct" value="0" oninput="calcUP()" onblur="fillZero(this)"></div></td>
+                        </tr>
+                        
+                        <tr>
+                            <td rowspan="4" class="region-cell">Non-HK Card</td>
+                            <td class="tier-cell">Prepaid Card, Debit Card, Electron, Classic/Gold Credit</td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="v-pct" value="0" oninput="calcVisa()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="m-pct" value="0" oninput="calcMaster()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="u-pct" value="0" oninput="calcUP()" onblur="fillZero(this)"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="tier-cell">Premium (Platinum)</td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="v-pct" value="0" oninput="calcVisa()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="m-pct" value="0" oninput="calcMaster()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="u-pct" value="0" oninput="calcUP()" onblur="fillZero(this)"></div></td>
+                        </tr>
+                        <tr>
+                            <td class="tier-cell" style="padding-top: 10px; padding-bottom: 10px;">
+                                Super Premium/Corporate (Signature, Infinite)<br>
+                                <span style="font-size: 10.5px; color: #718096; font-weight: 600;">* UnionPay: Diamond Credit</span>
+                            </td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="v-pct" value="0" oninput="calcVisa()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="m-pct" value="0" oninput="calcMaster()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="u-pct" value="0" oninput="calcUP()" onblur="fillZero(this)"></div></td>
+                        </tr>
+                        <tr class="section-divider">
+                            <td class="tier-cell">Ultra-High Net Worth (Elite)</td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="v-pct" value="0" oninput="calcVisa()" onblur="fillZero(this)"></div></td>
+                            <td><div class="input-percent-group"><input type="number" min="0" class="m-pct" value="0" oninput="calcMaster()" onblur="fillZero(this)"></div></td>
+                            <td class="na-cell">N/A</td>
+                        </tr>
+                        
+                        <tr class="total-alloc-row">
+                            <td colspan="2" style="text-align: right; padding-right: 15px; padding-top: 12px; padding-bottom: 12px;">Total Allocation :</td>
+                            <td style="text-align: center;"><span id="visa_total">0 %</span><div id="visa_error" class="error-text" style="margin:4px 0 0 0;">⚠️ Must be 100%</div></td>
+                            <td style="text-align: center;"><span id="master_total">0 %</span><div id="master_error" class="error-text" style="margin:4px 0 0 0;">⚠️ Must be 100%</div></td>
+                            <td style="text-align: center;"><span id="up_total">0 %</span><div id="up_error" class="error-text" style="margin:4px 0 0 0;">⚠️ Must be 100%</div></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="result-area">
+        <h2>Projected Cost Calculation</h2>
+        
+        <div id="tables_container" class="result-card stale-result">
+            <div class="table-wrapper" style="margin-bottom: 0; padding: 20px;">
+                <div style="min-width: 540px; display: flex; flex-direction: column; gap: 25px;">
+                    
+                    <table class="result-table" style="table-layout: fixed;">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 15%;"><col style="width: 15%;"><col style="width: 15%;">
+                            <col style="width: 15%;"><col style="width: 15%;"><col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="vertical-align: middle;">Result</th>
+                                <th colspan="3" class="bg-visa section-right-border">Visa</th>
+                                <th colspan="3" class="bg-master">Mastercard</th>
+                            </tr>
+                            <tr>
+                                <th>Local</th><th>Int'l</th><th class="section-right-border">Combined</th>
+                                <th>Local</th><th>Int'l</th><th>Combined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="row-label">%</td>
+                                <td class="val" id="visa_local_pct">-</td><td class="val" id="visa_int_pct">-</td><td class="val section-right-border" id="visa_cmb_pct">-</td>
+                                <td class="val" id="master_local_pct">-</td><td class="val" id="master_int_pct">-</td><td class="val" id="master_cmb_pct">-</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">FIX</td>
+                                <td class="val" id="visa_local_fix">-</td><td class="val" id="visa_int_fix">-</td><td class="val section-right-border" id="visa_cmb_fix">-</td>
+                                <td class="val" id="master_local_fix">-</td><td class="val" id="master_int_fix">-</td><td class="val" id="master_cmb_fix">-</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label divider-top" style="line-height: 1.1; padding: 4px 2px; font-size: 10.5px;">Cover FIX<br>(%)</td>
+                                <td class="val divider-top" id="visa_local_cvr">-</td>
+                                <td class="val divider-top" id="visa_int_cvr">-</td>
+                                <td class="val section-right-border divider-top" id="visa_cmb_cvr">-</td>
+                                <td class="val divider-top" id="master_local_cvr">-</td>
+                                <td class="val divider-top" id="master_int_cvr">-</td>
+                                <td class="val divider-top" id="master_cmb_cvr">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="result-table" style="table-layout: fixed;">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 15%;"><col style="width: 15%;"><col style="width: 15%;">
+                            <col style="width: 15%;"><col style="width: 15%;"><col style="width: 15%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="vertical-align: middle;">Result</th>
+                                <th colspan="3" class="bg-weight section-right-border">Weighted Average (V/M)</th>
+                                <th colspan="3" class="bg-higher">Whichever is Higher (V/M)</th>
+                            </tr>
+                            <tr>
+                                <th>Local</th><th>Int'l</th><th class="section-right-border">Combined</th>
+                                <th>Local</th><th>Int'l</th><th>Combined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="row-label">%</td>
+                                <td class="val" id="weighted_local_pct">-</td><td class="val" id="weighted_int_pct">-</td><td class="val section-right-border" id="weighted_cmb_pct">-</td>
+                                <td class="val" id="higher_local_pct">-</td><td class="val" id="higher_int_pct">-</td><td class="val" id="higher_cmb_pct">-</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">FIX</td>
+                                <td class="val" id="weighted_local_fix">-</td><td class="val" id="weighted_int_fix">-</td><td class="val section-right-border" id="weighted_cmb_fix">-</td>
+                                <td class="val" id="higher_local_fix">-</td><td class="val" id="higher_int_fix">-</td><td class="val" id="higher_cmb_fix">-</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label divider-top" style="line-height: 1.1; padding: 4px 2px; font-size: 10.5px;">Cover FIX<br>(%)</td>
+                                <td class="val divider-top" id="weighted_local_cvr">-</td>
+                                <td class="val divider-top" id="weighted_int_cvr">-</td>
+                                <td class="val section-right-border divider-top" id="weighted_cmb_cvr">-</td>
+                                <td class="val divider-top" id="higher_local_cvr">-</td>
+                                <td class="val divider-top" id="higher_int_cvr">-</td>
+                                <td class="val divider-top" id="higher_cmb_cvr">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="result-table" style="table-layout: fixed;">
+                        <colgroup>
+                            <col style="width: 10%;">
+                            <col style="width: 15%;"><col style="width: 15%;"><col style="width: 15%;">
+                            <col style="width: 11.25%;"><col style="width: 11.25%;"><col style="width: 11.25%;"><col style="width: 11.25%;">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th rowspan="2" style="vertical-align: middle; font-size: 11px;">Result</th>
+                                <th colspan="3" class="bg-up section-right-border" style="font-size: 11px;">UnionPay</th>
+                                <th colspan="4" class="bg-upqp" style="font-size: 11px;">UnionPay QuickPass</th>
+                            </tr>
+                            <tr>
+                                <th style="font-size: 11px;">Local</th><th style="font-size: 11px;">Int'l</th><th class="section-right-border" style="font-size: 11px;">Combined</th>
+                                <th style="font-size: 11px; line-height: 1.1; padding: 4px 2px;">Local<br><span style="font-size:9.5px; font-weight:normal;">MPQR</span></th>
+                                <th style="font-size: 11px; line-height: 1.1; padding: 4px 2px;">Local<br><span style="font-size:9.5px; font-weight:normal;">CPQR</span></th>
+                                <th style="font-size: 11px;">Int'l</th><th style="font-size: 11px;">Combined</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="row-label">%</td>
+                                <td class="val" id="up_local_pct">-</td><td class="val" id="up_int_pct">-</td><td class="val section-right-border" id="up_cmb_pct">-</td>
+                                <td class="val" id="upqp_local_mpqr_pct">-</td><td class="val" id="upqp_local_cpqr_pct">-</td><td class="val" id="upqp_int_pct">-</td><td class="val" id="upqp_cmb_pct">-</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label">FIX</td>
+                                <td class="val" id="up_local_fix">-</td><td class="val" id="up_int_fix">-</td><td class="val section-right-border" id="up_cmb_fix">-</td>
+                                <td class="val" id="upqp_local_mpqr_fix">-</td><td class="val" id="upqp_local_cpqr_fix">-</td><td class="val" id="upqp_int_fix">-</td><td class="val" id="upqp_cmb_fix">-</td>
+                            </tr>
+                            <tr>
+                                <td class="row-label divider-top" style="line-height: 1.1; padding: 4px 2px; font-size: 10.5px;">Cover FIX<br>(%)</td>
+                                <td class="val divider-top" id="up_local_cvr">-</td>
+                                <td class="val divider-top" id="up_int_cvr">-</td>
+                                <td class="val section-right-border divider-top" id="up_cmb_cvr">-</td>
+                                <td class="val divider-top" id="upqp_local_mpqr_cvr">-</td>
+                                <td class="val divider-top" id="upqp_local_cpqr_cvr">-</td>
+                                <td class="val divider-top" id="upqp_int_cvr">-</td>
+                                <td class="val divider-top" id="upqp_cmb_cvr">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
         
     </div>
 </div>
@@ -363,6 +587,14 @@ html, body {
 </div>
 
 <div id="loadModal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 style="display: flex; justify-content: space-between; align-items: center;">☁️ Cloud Saved Records <button onclick="closeLoadModal()" style="background: none; border: none; cursor: pointer;" class="close-icon">✖</button></h3>
+        <input type="text" id="record_search" placeholder="🔍 Search records by name..." style="margin-bottom: 15px; width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #cbd5e0;" onkeyup="filterRecords()">
+        <ul id="draftList" class="draft-list">
+            <li style="text-align:center; padding: 20px; color:#a0aec0;">Loading records from cloud...</li>
+        </ul>
+        <button class="btn-close-modal" id="btn_close_load" onclick="closeLoadModal()">Close</button>
+    </div>
 </div>
 
 <div id="specialMccModal" class="modal-overlay">
@@ -399,6 +631,30 @@ html, body {
         <button class="btn-close-modal" onclick="closeSpecialMccModal()">Close</button>
     </div>
 </div>
+
+<div id="saveConflictModal" class="modal-overlay">
+    <div class="modal-content" style="text-align: center; width: 400px;">
+        <h3 style="color: #d69e2e; border: none; font-size: 20px;">⚠️ Record Already Exists</h3>
+        <p style="color: #4a5568; font-size: 14px; margin-bottom: 20px;">
+            The record <strong id="conflict_record_name"></strong> already exists. What would you like to do?
+        </p>
+        <div id="new_copy_input_area" style="display: none; margin-bottom: 15px; text-align: left;">
+            <label style="font-size: 12px; color: #718096;">Edit name for new copy:</label>
+            <input type="text" id="conflict_new_name" style="width: 100%; margin-top: 5px;">
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: center;" id="conflict_buttons_area">
+            <button class="btn" style="background-color: #edf2f7; color: #4a5568;" id="btn_modal_cancel" onclick="closeSaveConflict()">Cancel</button>
+            <button class="btn" style="background-color: #3182ce; color: #ffffff;" id="btn_modal_new" onclick="triggerSaveNewCopy()">Save as New Copy</button>
+            <button class="btn" style="background-color: #e53e3e; color: #ffffff;" id="btn_modal_rep" onclick="triggerReplace()">Replace Existing</button>
+        </div>
+        <div style="display: none; gap: 10px; justify-content: center;" id="confirm_new_copy_area">
+            <button class="btn" style="background-color: #edf2f7; color: #4a5568;" id="btn_modal_cancel2" onclick="closeSaveConflict()">Cancel</button>
+            <button class="btn" style="background-color: #38a169; color: #ffffff;" id="btn_modal_save_copy" onclick="executeFinalSave('new')">Save Copy</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast">Message goes here</div>
 
 <script>
 // ==========================================
@@ -836,7 +1092,6 @@ function setBadge(brand, state) {
     }
 }
 
-// 🔥 修正：這裡是之前被切斷的 attemptLogin 函數
 function attemptLogin() {
     const userInput = document.getElementById('login_user');
     const passInput = document.getElementById('login_pass');
