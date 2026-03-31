@@ -43,7 +43,20 @@ html, body {
     label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #4a5568; transition: 0.3s; }
     
     input[type="text"], input[type="password"], select, input[type="number"] { 
-        width: 100%; height: 36px; line-height: 34px; padding: 0 10px; border: 1px solid #cbd5e0; border-radius: 4px; box-sizing: border-box; font-size: 13px; outline: none; transition: 0.2s; font-family: inherit; background-color: #ffffff; color: #333333; -webkit-appearance: none;
+        width: 100%; 
+        height: 36px; 
+        line-height: 34px; 
+        padding: 0 10px; 
+        border: 1px solid #cbd5e0; 
+        border-radius: 4px; 
+        box-sizing: border-box; 
+        font-size: 13px; 
+        outline: none; 
+        transition: 0.2s; 
+        font-family: inherit;
+        background-color: #ffffff; 
+        color: #333333;
+        -webkit-appearance: none;
     }
     input[type="number"]::-webkit-inner-spin-button, 
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -66,13 +79,22 @@ html, body {
     
     .error-text { color: #e53e3e; font-size: 12px; margin-top: 8px; display: none; font-weight: bold; }
     
-    .table-wrapper { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px; box-sizing: border-box; }
+    .table-wrapper { 
+        width: 100%; 
+        max-width: 100%;
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch; 
+        margin-bottom: 10px; 
+        box-sizing: border-box; 
+    }
     table.dist-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; min-width: 540px; }
-    table th, table td { border: 1px solid #e2e8f0; padding: 8px 10px; vertical-align: middle; transition: 0.3s; }
+    
+    table th, table td { border: 1px solid #e2e8f0; padding: 8px 10px; vertical-align: middle; transition: 0.3s; word-break: break-word; }
     table th { background-color: #edf2f7; color: #2d3748; text-align: center; font-weight: 600; transition: 0.3s; }
     
     table td.region-cell { font-weight: 600; text-align: center; background-color: #f8fafc; width: 15%; color: #4a5568; transition: 0.3s; }
     table td.tier-cell { width: 60%; color: #2d3748; transition: 0.3s; }
+    
     table tr.section-divider td { border-bottom: 2px solid #a0aec0; }
     table td.divider-top { border-top: 2px solid #a0aec0; }
     table td.section-right-border { border-right: 2px solid #cbd5e0; }
@@ -118,7 +140,6 @@ html, body {
     #loginModal { display: flex; }
     .btn-login { width: 100%; padding: 12px; background: #2b6cb0; color: #ffffff; border: none; border-radius: 4px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.3s; }
     
-    /* 🔥 新增的 Load Group 分組樣式 */
     .draft-list { padding: 0; margin: 0; max-height: 400px; overflow-y: auto; }
     .draft-group { margin-bottom: 15px; border: 1px solid #edf2f7; border-radius: 6px; overflow: hidden; transition: 0.3s; }
     .draft-group-title { background: #f8fafc; padding: 10px 15px; font-size: 14px; font-weight: bold; color: #2d3748; border-bottom: 1px solid #edf2f7; transition: 0.3s; }
@@ -134,18 +155,36 @@ html, body {
     .btn-theme-toggle { background: none; border: 1px solid rgba(255,255,255,0.3); color: #ffffff; font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
     .btn-theme-toggle:hover { background: rgba(255,255,255,0.1); }
 
-    /* 🔥 Special MCC Modal 專用寬度 */
+    /* 🔥 等寬等高的 Brand Badge 樣式設定 */
+    .brand-badge {
+        flex: 1;
+        text-align: center;
+        font-size: 10.5px;
+        padding: 5px 2px;
+        border-radius: 3px;
+        border: 1px solid transparent;
+        font-weight: bold;
+        transition: 0.3s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        line-height: 1.3;
+        min-height: 24px;
+    }
+
+    /* 🔥 Special MCC Modal 專用寬度與動態樣式 */
     .special-mcc-modal { width: 1100px; max-width: 95%; }
     
     .segment-cell { text-align: left; font-size: 12px; font-weight: bold; line-height: 1.3; vertical-align: middle; background-color: #f8fafc; color: #2d3748; transition: background-color 0.3s, color 0.3s; border-right: 1px solid #cbd5e0; }
     .sp-mcc-cell { font-weight: bold; color: #2b6cb0; text-align: center; vertical-align: middle; transition: color 0.3s; }
     .sp-desc-cell { text-align: left; font-size: 11px; line-height: 1.4; vertical-align: middle; transition: color 0.3s; }
     .sp-check-cell { text-align: center; vertical-align: middle; transition: color 0.3s; }
-    .sp-recurring { display: inline-block; font-size: 8.5px; color: #e53e3e; font-weight: bold; line-height: 1.1; margin-top: 3px; text-align: center; transition: color 0.3s; }
+    .sp-recurring { display: inline-block; font-size: 9px; color: #e53e3e; font-weight: bold; line-height: 1.1; margin-top: 3px; text-align: center; transition: color 0.3s; }
     .sp-dash { color: #cbd5e0; transition: color 0.3s; }
 
     /* ==================================================== */
-    /* 🔥 DARK MODE */
+    /* 🔥 DARK MODE (完全移除 !important，利用原生權重) */
     /* ==================================================== */
     body.dark-mode { background-color: #1a202c; color: #e2e8f0; }
     body.dark-mode .top-nav { background-color: #111827; box-shadow: 0 2px 8px rgba(0,0,0,0.5); border-bottom: 1px solid #2d3748; }
@@ -182,7 +221,6 @@ html, body {
     body.dark-mode .sp-recurring { color: #fc8181; }
     body.dark-mode .sp-dash { color: #4a5568; }
     
-    /* 🔥 Dark Mode overrides for Draft List Grouping */
     body.dark-mode .draft-group { border-color: #4a5568; }
     body.dark-mode .draft-group-title { background-color: #1a202c; color: #e2e8f0; border-bottom-color: #4a5568; }
     body.dark-mode .draft-item { background-color: #2d3748; border-bottom-color: #4a5568; }
@@ -212,6 +250,9 @@ html, body {
     body.dark-mode .btn-load:hover { background-color: #9c4221; }
     body.dark-mode .btn-delete-draft { background-color: #742a2a; color: #fc8181; border-color: #9b2c2c; }
 
+    /* ==================================================== */
+    /* 🔥 行動裝置響應式設計 (Mobile Responsiveness) */
+    /* ==================================================== */
     @media (max-width: 1024px) {
         .main-layout { flex-direction: column; }
         .input-area, .result-area { width: 100%; flex: auto; }
@@ -226,6 +267,7 @@ html, body {
         .sticky-controls .btn { flex: 1 1 calc(50% - 10px); padding: 12px 10px; font-size: 13px; margin: 0; text-align: center; }
         .sticky-controls .btn-calc { flex: 1 1 100%; margin-left: 0; font-size: 16px; margin-top: 5px; }
 
+        /* 🔥 手機版防爆格：移除 table-layout: fixed 並加上 min-width */
         .special-mcc-modal {
             width: 100vw !important;
             height: 100vh !important;
@@ -236,7 +278,7 @@ html, body {
             padding: 15px !important;
             box-sizing: border-box;
         }
-        .special-mcc-modal .table-wrapper { flex: 1; height: 100%; }
+        .special-mcc-modal .table-wrapper { flex: 1; height: 100%; overflow-x: auto; }
         
         .modal-content { width: 95vw; padding: 20px; }
     }
@@ -293,10 +335,10 @@ html, body {
                     </label>
                     <input type="text" id="mcc" list="mcc_list" class="basic-info-field" onchange="toggleOtherMcc(); checkSpecialMcc();" oninput="checkSpecialMcc();" placeholder="Select or type MCC..." autocomplete="off">
                     <datalist id="mcc_list"></datalist>
-                    <div style="display: flex; gap: 6px; margin-top: 8px;">
-                        <span id="badge_v" style="font-size: 10px; padding: 3px 6px; border-radius: 3px; background: #edf2f7; color: #a0aec0; border: 1px solid #e2e8f0; font-weight: bold;">VISA</span>
-                        <span id="badge_m" style="font-size: 10px; padding: 3px 6px; border-radius: 3px; background: #edf2f7; color: #a0aec0; border: 1px solid #e2e8f0; font-weight: bold;">MASTER</span>
-                        <span id="badge_u" style="font-size: 10px; padding: 3px 6px; border-radius: 3px; background: #edf2f7; color: #a0aec0; border: 1px solid #e2e8f0; font-weight: bold;">UNIONPAY</span>
+                    <div style="display: flex; gap: 6px; margin-top: 8px; align-items: stretch;">
+                        <div id="badge_v" class="brand-badge" style="background: #edf2f7; color: #a0aec0; border-color: #e2e8f0;">VISA</div>
+                        <div id="badge_m" class="brand-badge" style="background: #edf2f7; color: #a0aec0; border-color: #e2e8f0;">MASTER</div>
+                        <div id="badge_u" class="brand-badge" style="background: #edf2f7; color: #a0aec0; border-color: #e2e8f0;">UNIONPAY</div>
                     </div>
                 </div>
                 <div class="form-group" id="other_mcc_group" style="display:none;"><label>Other MCC</label>
@@ -317,7 +359,7 @@ html, body {
 
             <div class="form-row">
                 <div class="form-group"><label>Processing Currency</label><select id="currency" class="basic-info-field"><option value="HKD" selected>HKD</option><option value="Non-HKD">Non-HKD</option></select></div>
-                <div class="form-group"><label>Average Ticket Size (HKD)</label><input type="number" min="0" id="ticket_size" class="basic-info-field" step="0.01" onblur="formatCurrency(this)"></div>
+                <div class="form-group"><label>Average Ticket Size (HKD)</label><input type="number" min="0" id="ticket_size" class="basic-info-field" step="0.01" oninput="if(this.value < 0) this.value = ''; checkEmptyFields();" onblur="formatCurrency(this)"></div>
                 <div class="form-group"><label>Model</label><select id="model" class="basic-info-field" onchange="toggleShopify()"><option value="" selected disabled>Select Model</option><option value="Online">Online</option><option value="Offline">Offline</option></select></div>
             </div>
             <div class="form-row">
@@ -423,11 +465,9 @@ html, body {
 
     <div class="result-area">
         <h2>Projected Cost Calculation</h2>
-        
         <div id="tables_container" class="result-card stale-result">
             <div class="table-wrapper" style="margin-bottom: 0; padding: 20px;">
                 <div style="min-width: 540px; display: flex; flex-direction: column; gap: 25px;">
-                    
                     <table class="result-table" style="table-layout: fixed;">
                         <colgroup>
                             <col style="width: 10%;">
@@ -553,7 +593,6 @@ html, body {
                 </div>
             </div>
         </div>
-        
     </div>
 </div>
 
@@ -587,25 +626,25 @@ html, body {
             <button onclick="closeSpecialMccModal()" style="background: none; border: none; font-size: 16px; cursor: pointer;" class="close-icon">✖</button>
         </h3>
         <div class="table-wrapper" style="max-height: 60vh; overflow-y: auto; flex: 1;">
-            <table class="dist-table" id="special_mcc_table" style="table-layout: fixed; width: 100%; min-width: 900px;">
+            <table class="dist-table" id="special_mcc_table" style="width: 100%; min-width: 1100px;">
                 <thead style="position: sticky; top: 0; z-index: 10;">
                     <tr>
-                        <th rowspan="2" style="width: 13%; text-align: left;">Segment</th>
+                        <th rowspan="2" style="width: 12%; text-align: left;">Segment</th>
                         <th rowspan="2" style="width: 5%;">MCC</th>
                         <th rowspan="2" style="width: 12%; text-align: left;">Name</th>
-                        <th rowspan="2" style="width: 22%; text-align: left;">Description</th>
-                        <th rowspan="2" style="width: 12%; text-align: left;">Industry</th>
-                        <th colspan="2" class="bg-visa" style="width: 12%;">Visa</th>
-                        <th colspan="2" class="bg-master" style="width: 12%;">Mastercard</th>
-                        <th colspan="2" class="bg-up" style="width: 12%;">UnionPay</th>
+                        <th rowspan="2" style="width: 18%; text-align: left;">Description</th>
+                        <th rowspan="2" style="width: 11%; text-align: left;">Industry</th>
+                        <th colspan="2" class="bg-visa" style="width: 14%;">Visa</th>
+                        <th colspan="2" class="bg-master" style="width: 14%;">Mastercard</th>
+                        <th colspan="2" class="bg-up" style="width: 14%;">UnionPay</th>
                     </tr>
                     <tr>
-                        <th class="bg-visa" style="font-size:10px; width: 6%; padding: 4px;">Online</th>
-                        <th class="bg-visa" style="font-size:10px; width: 6%; padding: 4px;">Offline</th>
-                        <th class="bg-master" style="font-size:10px; width: 6%; padding: 4px;">Online</th>
-                        <th class="bg-master" style="font-size:10px; width: 6%; padding: 4px;">Offline</th>
-                        <th class="bg-up" style="font-size:10px; width: 6%; padding: 4px;">Local</th>
-                        <th class="bg-up" style="font-size:10px; width: 6%; padding: 4px;">Int'l</th>
+                        <th class="bg-visa" style="font-size:10px; width: 7%; padding: 4px;">Online</th>
+                        <th class="bg-visa" style="font-size:10px; width: 7%; padding: 4px;">Offline</th>
+                        <th class="bg-master" style="font-size:10px; width: 7%; padding: 4px;">Online</th>
+                        <th class="bg-master" style="font-size:10px; width: 7%; padding: 4px;">Offline</th>
+                        <th class="bg-up" style="font-size:10px; width: 7%; padding: 4px;">Local</th>
+                        <th class="bg-up" style="font-size:10px; width: 7%; padding: 4px;">Int'l</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -774,7 +813,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// 🔥 修正：全域監聽 ESC 鍵關閉任何開啟的彈窗
 document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeSpecialMccModal();
+        closeLoadModal();
+        closeSaveConflict();
+        return;
+    }
+    
     if (!currentUser || document.getElementById('loginModal').style.display === 'flex') return;
 
     if ((e.ctrlKey || e.metaKey) && e.key === 's') {
@@ -862,6 +909,7 @@ function exportToImage() {
     const firstVersionEl = document.querySelector('.update-version');
     const latestVersionText = firstVersionEl ? firstVersionEl.innerText : 'Version ID: Unknown';
     
+    // 🔥 動態抓取 Update History 裡面的最新版本號碼
     const verMatch = latestVersionText.match(/\d+/);
     const verNumber = verMatch ? verMatch[0] : 'Unknown';
 
@@ -893,6 +941,7 @@ function exportToImage() {
             const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
             
             const link = document.createElement('a');
+            // 🔥 儲存檔名加入版本號： _verYYYYMMDD
             link.download = `QFCCL_${mName}_${dateStr}_ver${verNumber}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
@@ -1015,8 +1064,6 @@ function renderSpecialMccTable() {
         return;
     }
 
-    const isDark = document.body.classList.contains('dark-mode');
-
     let sortedList = [...specialMccDetailedList].sort((a, b) => {
         let segA = (a.segment || "").toLowerCase();
         let segB = (b.segment || "").toLowerCase();
@@ -1036,9 +1083,10 @@ function renderSpecialMccTable() {
         
         const isRecurring = (item.segment || "").toLowerCase().includes('recurring');
         
-        const renderCheck = (val) => {
+        // 🔥 修改：透過 applyRecurring 變數判斷是否要顯示 recurring (針對 UP 會傳 false)
+        const renderCheck = (val, applyRecurring) => {
             if (val === 'Y') {
-                return isRecurring ? '✅<br><span class="sp-recurring">recurring<br>only</span>' : '✅';
+                return applyRecurring ? '✅<br><span class="sp-recurring">recurring<br>only</span>' : '✅';
             }
             return '<span class="sp-dash">-</span>';
         };
@@ -1064,12 +1112,12 @@ function renderSpecialMccTable() {
             <td class="sp-desc-cell" style="font-weight:bold;">${item.name || '-'}</td>
             <td class="sp-desc-cell">${item.desc || '-'}</td>
             <td class="sp-desc-cell">${item.industry || '-'}</td>
-            <td class="sp-check-cell">${renderCheck(item.vOn)}</td>
-            <td class="sp-check-cell">${renderCheck(item.vOff)}</td>
-            <td class="sp-check-cell">${renderCheck(item.mOn)}</td>
-            <td class="sp-check-cell">${renderCheck(item.mOff)}</td>
-            <td class="sp-check-cell">${renderCheck(item.uLoc)}</td>
-            <td class="sp-check-cell">${renderCheck(item.uInt)}</td>
+            <td class="sp-check-cell">${renderCheck(item.vOn, isRecurring)}</td>
+            <td class="sp-check-cell">${renderCheck(item.vOff, isRecurring)}</td>
+            <td class="sp-check-cell">${renderCheck(item.mOn, isRecurring)}</td>
+            <td class="sp-check-cell">${renderCheck(item.mOff, isRecurring)}</td>
+            <td class="sp-check-cell">${renderCheck(item.uLoc, false)}</td>
+            <td class="sp-check-cell">${renderCheck(item.uInt, false)}</td>
         `;
         
         while(restOfRow.content.firstChild) {
@@ -1088,14 +1136,21 @@ function checkSpecialMcc() {
     const infoBox = document.getElementById('mcc_info_box');
     
     if (!targetMcc || targetMcc.length < 4) {
-        setBadge('v', 'grey'); setBadge('m', 'grey'); setBadge('u', 'grey'); 
+        setBadge('v', 'grey', false); setBadge('m', 'grey', false); setBadge('u', 'grey', false); 
         infoBox.style.display = 'none'; 
         return;
     }
 
-    if (specialMccs.v.includes(targetMcc)) setBadge('v', 'special'); else setBadge('v', 'normal');
-    if (specialMccs.m.includes(targetMcc)) setBadge('m', 'special'); else setBadge('m', 'normal');
-    if (specialMccs.u.includes(targetMcc)) setBadge('u', 'special'); else setBadge('u', 'normal');
+    // 🔥 新增：判定目前選擇的 MCC 是否屬於 Recurring Segment
+    let isRecurring = false;
+    let targetObj = specialMccDetailedList.find(obj => obj.mcc === targetMcc);
+    if(targetObj && (targetObj.segment || "").toLowerCase().includes("recurring")) {
+        isRecurring = true;
+    }
+
+    if (specialMccs.v.includes(targetMcc)) setBadge('v', 'special', isRecurring); else setBadge('v', 'normal', false);
+    if (specialMccs.m.includes(targetMcc)) setBadge('m', 'special', isRecurring); else setBadge('m', 'normal', false);
+    if (specialMccs.u.includes(targetMcc)) setBadge('u', 'special', false); else setBadge('u', 'normal', false);
 
     if (mccDetailsMap[targetMcc]) {
         document.getElementById('mcc_desc_text').innerText = mccDetailsMap[targetMcc].desc;
@@ -1106,18 +1161,21 @@ function checkSpecialMcc() {
     }
 }
 
-function setBadge(brand, state) {
+// 🔥 新增：接收 isRecur 變數，並在 Visa/MC 上方加上 (Recurring) 的防呆標記
+function setBadge(brand, state, isRecur) {
     const el = document.getElementById(`badge_${brand}`);
+    let recTag = isRecur ? '<br><span style="font-size: 8.5px; color: #e53e3e;">(Recurring)</span>' : '';
+    
     if (state === 'grey') {
         el.style.background = '#edf2f7'; el.style.color = '#a0aec0'; el.style.borderColor = '#e2e8f0';
-        el.innerText = brand === 'v' ? 'Visa' : brand === 'm' ? 'Mastercard' : 'UnionPay';
+        el.innerHTML = brand === 'v' ? 'Visa' : brand === 'm' ? 'Mastercard' : 'UnionPay';
     } else if (state === 'special') {
-        if(brand==='v') { el.style.background = '#ebf4ff'; el.style.color = '#1a1f71'; el.style.borderColor = '#90cdf4'; el.innerText = 'Visa: Special'; }
-        if(brand==='m') { el.style.background = '#fffaf0'; el.style.color = '#ff5f00'; el.style.borderColor = '#fbd38d'; el.innerText = 'MC: Special'; }
-        if(brand==='u') { el.style.background = '#e6fffa'; el.style.color = '#007d79'; el.style.borderColor = '#81e6d9'; el.innerText = 'CUP: Special'; }
+        if(brand==='v') { el.style.background = '#ebf4ff'; el.style.color = '#1a1f71'; el.style.borderColor = '#90cdf4'; el.innerHTML = 'Visa: Special' + recTag; }
+        if(brand==='m') { el.style.background = '#fffaf0'; el.style.color = '#ff5f00'; el.style.borderColor = '#fbd38d'; el.innerHTML = 'MC: Special' + recTag; }
+        if(brand==='u') { el.style.background = '#e6fffa'; el.style.color = '#007d79'; el.style.borderColor = '#81e6d9'; el.innerHTML = 'CUP: Special'; }
     } else {
         el.style.background = '#f7fafc'; el.style.color = '#718096'; el.style.borderColor = '#e2e8f0';
-        el.innerText = (brand==='v'?'Visa':brand==='m'?'Mastercard':'UnionPay') + ': Std.';
+        el.innerHTML = (brand==='v'?'Visa':brand==='m'?'Mastercard':'UnionPay') + ': Std.';
     }
 }
 
@@ -1316,7 +1374,6 @@ function executeFinalSave(mode) {
     });
 }
 
-// 🔥 修改後的：包含分組搜尋過濾功能的 Load List
 function filterRecords() {
     let input = document.getElementById('record_search').value.toLowerCase();
     let groups = document.querySelectorAll('#draftList .draft-group');
@@ -1328,7 +1385,6 @@ function filterRecords() {
         
         items.forEach(item => {
             let name = item.querySelector('.draft-name').innerText.toLowerCase();
-            // 如果輸入字串符合群組名稱(Merchant) 或 個別紀錄名稱，就顯示
             if (name.includes(input) || groupTitleText.includes(input)) {
                 item.style.display = 'flex';
                 hasVisibleItem = true;
@@ -1337,7 +1393,6 @@ function filterRecords() {
             }
         });
         
-        // 如果該商戶底下沒有任何符合的紀錄，就把整個商戶群組隱藏
         if (hasVisibleItem) {
             group.style.display = 'block';
         } else {
@@ -1346,7 +1401,6 @@ function filterRecords() {
     });
 }
 
-// 🔥 修改後的：以 Merchant Name 進行分組渲染的 Load Modal
 function openLoadModal() {
     setActionState(true, 'btn_cloud_load', 'Loading...');
     document.getElementById('loadModal').style.display = 'flex';
@@ -1368,7 +1422,6 @@ function openLoadModal() {
             let records = res.data.reverse();
             let grouped = {};
             
-            // 進行分組 (用 merchant_name)
             records.forEach(item => {
                 let mName = "Unknown Merchant";
                 try {
@@ -1382,7 +1435,6 @@ function openLoadModal() {
                 grouped[mName].push(item);
             });
 
-            // 渲染分組的 HTML
             for (let mName in grouped) {
                 let groupDiv = document.createElement('div');
                 groupDiv.className = 'draft-group';
