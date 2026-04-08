@@ -43,20 +43,7 @@ html, body {
     label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; color: #4a5568; transition: 0.3s; }
     
     input[type="text"], input[type="password"], select, input[type="number"] { 
-        width: 100%; 
-        height: 36px; 
-        line-height: 34px; 
-        padding: 0 10px; 
-        border: 1px solid #cbd5e0; 
-        border-radius: 4px; 
-        box-sizing: border-box; 
-        font-size: 13px; 
-        outline: none; 
-        transition: 0.2s; 
-        font-family: inherit;
-        background-color: #ffffff; 
-        color: #333333;
-        -webkit-appearance: none;
+        width: 100%; height: 36px; line-height: 34px; padding: 0 10px; border: 1px solid #cbd5e0; border-radius: 4px; box-sizing: border-box; font-size: 13px; outline: none; transition: 0.2s; font-family: inherit; background-color: #ffffff; color: #333333; -webkit-appearance: none;
     }
     input[type="number"]::-webkit-inner-spin-button, 
     input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -79,22 +66,18 @@ html, body {
     
     .error-text { color: #e53e3e; font-size: 12px; margin-top: 8px; display: none; font-weight: bold; }
     
-    .table-wrapper { 
-        width: 100%; 
-        max-width: 100%;
-        overflow-x: auto; 
-        -webkit-overflow-scrolling: touch; 
-        margin-bottom: 10px; 
-        box-sizing: border-box; 
-    }
-    table.dist-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; min-width: 540px; }
+    .table-wrapper { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px; box-sizing: border-box; }
     
-    table th, table td { border: 1px solid #e2e8f0; padding: 8px 10px; vertical-align: middle; transition: 0.3s; word-break: break-word; }
+    /* 🔥 修正：全域表格 td/th 不要強制斷行，只限制在特定區塊 */
+    table.dist-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; min-width: 540px; }
+    table th, table td { border: 1px solid #e2e8f0; padding: 8px 10px; vertical-align: middle; transition: 0.3s; }
     table th { background-color: #edf2f7; color: #2d3748; text-align: center; font-weight: 600; transition: 0.3s; }
     
+    /* 確保輸入與分配表不會爆版 */
+    table.dist-table th, table.dist-table td { word-break: break-word; }
+
     table td.region-cell { font-weight: 600; text-align: center; background-color: #f8fafc; width: 15%; color: #4a5568; transition: 0.3s; }
     table td.tier-cell { width: 60%; color: #2d3748; transition: 0.3s; }
-    
     table tr.section-divider td { border-bottom: 2px solid #a0aec0; }
     table td.divider-top { border-top: 2px solid #a0aec0; }
     table td.section-right-border { border-right: 2px solid #cbd5e0; }
@@ -125,10 +108,11 @@ html, body {
     .result-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); transition: opacity 0.3s ease, filter 0.3s ease, background 0.3s, border-color 0.3s; }
     .stale-result { opacity: 0.35; filter: grayscale(100%); pointer-events: none; }
     
+    /* 🔥 修正：強迫 Result 表格的文字待在同一行，字體微調 */
     table.result-table { width: 100%; text-align: center; border-collapse: collapse; min-width: 540px; }
-    table.result-table th { background-color: #f8fafc; color: #4a5568; font-weight: 600; font-size: 12px; transition: 0.3s; }
-    table.result-table td.val { color: #2d3748; font-weight: 500; font-size: 13px; font-family: 'Consolas', 'Segoe UI', Tahoma, sans-serif; transition: opacity 0.3s ease, color 0.3s; }
-    table.result-table td.row-label { background-color: #fdfdfd; color: #4a5568; font-size: 12px; font-weight: 600; transition: 0.3s; }
+    table.result-table th { background-color: #f8fafc; color: #4a5568; font-weight: 600; font-size: 11px; white-space: nowrap; transition: 0.3s; padding: 6px 2px; }
+    table.result-table td.val { color: #2d3748; font-weight: 500; font-size: 12px; white-space: nowrap; font-family: 'Consolas', 'Segoe UI', Tahoma, sans-serif; transition: opacity 0.3s ease, color 0.3s; }
+    table.result-table td.row-label { background-color: #fdfdfd; color: #4a5568; font-size: 11px; font-weight: 600; white-space: nowrap; transition: 0.3s; padding: 6px 2px; }
 
     #toast { visibility: hidden; min-width: 250px; background-color: #333333; color: #ffffff; text-align: center; border-radius: 4px; padding: 12px; position: fixed; z-index: 2000; left: 50%; bottom: 80px; transform: translateX(-50%); font-size: 14px; opacity: 0; transition: opacity 0.3s, bottom 0.3s; }
     #toast.show { visibility: visible; opacity: 1; bottom: 90px; }
@@ -155,7 +139,6 @@ html, body {
     .btn-theme-toggle { background: none; border: 1px solid rgba(255,255,255,0.3); color: #ffffff; font-size: 16px; cursor: pointer; padding: 4px 8px; border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
     .btn-theme-toggle:hover { background: rgba(255,255,255,0.1); }
 
-    /* 🔥 等寬等高的 Brand Badge 樣式設定 */
     .brand-badge {
         flex: 1;
         text-align: center;
@@ -173,7 +156,6 @@ html, body {
         min-height: 24px;
     }
 
-    /* 🔥 Special MCC Modal 專用寬度與動態樣式 */
     .special-mcc-modal { width: 1100px; max-width: 95%; }
     
     .segment-cell { text-align: left; font-size: 12px; font-weight: bold; line-height: 1.3; vertical-align: middle; background-color: #f8fafc; color: #2d3748; transition: background-color 0.3s, color 0.3s; border-right: 1px solid #cbd5e0; }
@@ -184,7 +166,7 @@ html, body {
     .sp-dash { color: #cbd5e0; transition: color 0.3s; }
 
     /* ==================================================== */
-    /* 🔥 DARK MODE (完全移除 !important，利用原生權重) */
+    /* 🔥 DARK MODE */
     /* ==================================================== */
     body.dark-mode { background-color: #1a202c; color: #e2e8f0; }
     body.dark-mode .top-nav { background-color: #111827; box-shadow: 0 2px 8px rgba(0,0,0,0.5); border-bottom: 1px solid #2d3748; }
@@ -267,7 +249,6 @@ html, body {
         .sticky-controls .btn { flex: 1 1 calc(50% - 10px); padding: 12px 10px; font-size: 13px; margin: 0; text-align: center; }
         .sticky-controls .btn-calc { flex: 1 1 100%; margin-left: 0; font-size: 16px; margin-top: 5px; }
 
-        /* 🔥 手機版防爆格：移除 table-layout: fixed 並加上 min-width */
         .special-mcc-modal {
             width: 100vw !important;
             height: 100vh !important;
@@ -279,7 +260,6 @@ html, body {
             box-sizing: border-box;
         }
         .special-mcc-modal .table-wrapper { flex: 1; height: 100%; overflow-x: auto; }
-        
         .modal-content { width: 95vw; padding: 20px; }
     }
 </style>
@@ -465,9 +445,11 @@ html, body {
 
     <div class="result-area">
         <h2>Projected Cost Calculation</h2>
+        
         <div id="tables_container" class="result-card stale-result">
             <div class="table-wrapper" style="margin-bottom: 0; padding: 20px;">
                 <div style="min-width: 540px; display: flex; flex-direction: column; gap: 25px;">
+                    
                     <table class="result-table" style="table-layout: fixed;">
                         <colgroup>
                             <col style="width: 10%;">
@@ -682,7 +664,11 @@ html, body {
 
 <script>
 // ==========================================
-// 🚨 Supabase 的 API 設定
+// 🚨 敏感資訊安全提醒 🚨
+// ==========================================
+// 由於這是純前端 HTML，以下 Key 在使用者打開開發者工具時必定會曝光。
+// 請確保在 Supabase 後端已經設定好強大的 RLS 與驗證機制。
+// (目前已為你打碼，請務必手動換成你自己的那串 Token！)
 // ==========================================
 const API_URL = "https://fayzdigpxabjfoygllmw.supabase.co/functions/v1/calculate-cost";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZheXpkaWdweGFiamZveWdsbG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTAxODIsImV4cCI6MjA4OTgyNjE4Mn0.Yd7D36SzJmYs0olFGXAjm5gJoL-dQbXIGAS8SHmWRaQ"; 
@@ -909,7 +895,6 @@ function exportToImage() {
     const firstVersionEl = document.querySelector('.update-version');
     const latestVersionText = firstVersionEl ? firstVersionEl.innerText : 'Version ID: Unknown';
     
-    // 🔥 動態抓取 Update History 裡面的最新版本號碼
     const verMatch = latestVersionText.match(/\d+/);
     const verNumber = verMatch ? verMatch[0] : 'Unknown';
 
@@ -941,7 +926,6 @@ function exportToImage() {
             const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
             
             const link = document.createElement('a');
-            // 🔥 儲存檔名加入版本號： _verYYYYMMDD
             link.download = `QFCCL_${mName}_${dateStr}_ver${verNumber}.png`;
             link.href = canvas.toDataURL('image/png');
             link.click();
@@ -1083,7 +1067,7 @@ function renderSpecialMccTable() {
         
         const isRecurring = (item.segment || "").toLowerCase().includes('recurring');
         
-        // 🔥 修改：透過 applyRecurring 變數判斷是否要顯示 recurring (針對 UP 會傳 false)
+        // 🔥 修正：防爆格，確保小螢幕上可以優雅換行
         const renderCheck = (val, applyRecurring) => {
             if (val === 'Y') {
                 return applyRecurring ? '✅<br><span class="sp-recurring">recurring<br>only</span>' : '✅';
@@ -1141,7 +1125,6 @@ function checkSpecialMcc() {
         return;
     }
 
-    // 🔥 新增：判定目前選擇的 MCC 是否屬於 Recurring Segment
     let isRecurring = false;
     let targetObj = specialMccDetailedList.find(obj => obj.mcc === targetMcc);
     if(targetObj && (targetObj.segment || "").toLowerCase().includes("recurring")) {
@@ -1161,7 +1144,7 @@ function checkSpecialMcc() {
     }
 }
 
-// 🔥 新增：接收 isRecur 變數，並在 Visa/MC 上方加上 (Recurring) 的防呆標記
+// 🔥 修正：置中排版且不改變原本的 Flex 等寬比例
 function setBadge(brand, state, isRecur) {
     const el = document.getElementById(`badge_${brand}`);
     let recTag = isRecur ? '<br><span style="font-size: 8.5px; color: #e53e3e;">(Recurring)</span>' : '';
@@ -1523,7 +1506,44 @@ function closeLoadModal() {
     document.getElementById('loadModal').style.display = 'none'; 
     setActionState(false);
 }
-function resetForm() { if(confirm("Clear all fields?")) window.location.reload(); }
+
+// 🔥 修正：無縫重置，防止重新載入閃爍頁面
+function resetForm() { 
+    if(!confirm("Clear all fields?")) return;
+    
+    document.getElementById('merchant_name').value = '';
+    document.getElementById('mcc').value = '';
+    document.getElementById('other_mcc').value = '';
+    document.getElementById('ticket_size').value = '';
+    document.getElementById('model').value = '';
+    document.getElementById('shopify').value = '';
+    document.getElementById('currency').value = 'HKD';
+    document.getElementById('fraudsight').value = 'Y';
+    document.getElementById('3ds').value = 'Y';
+    document.getElementById('token').value = 'N';
+    
+    document.getElementById('visa_overall_pct').value = '50';
+    document.getElementById('master_overall_pct').value = '50';
+    document.querySelectorAll('.v-pct, .m-pct, .u-pct').forEach(el => el.value = '0');
+    
+    toggleOtherMcc();
+    checkEmptyFields();
+    checkSpecialMcc();
+    calcVisa(); calcMaster(); calcUP(); calcOverall();
+    toggleShopify();
+    markResultStale();
+    
+    const setSectionGray = (prefix) => {
+        const cells = document.querySelectorAll(`[id^="${prefix}"]`);
+        cells.forEach(el => { el.innerText = "-"; el.style.opacity = "0.2"; });
+    };
+    setSectionGray('visa_'); setSectionGray('master_'); setSectionGray('up_'); setSectionGray('upqp_');
+    setSectionGray('weighted_'); setSectionGray('higher_');
+    
+    window.scrollTo(0, 0);
+    showToast("Form reset successful! 🧹", "#3182ce");
+}
+
 function showToast(message, bgColor = "#333333") {
     const t = document.getElementById("toast"); t.innerText = message; t.style.backgroundColor = bgColor;
     t.className = "show"; setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
