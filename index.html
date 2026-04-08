@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>QFPay - Card Cost Calculator</title>
+<link rel="icon" type="image/png" href="https://qfpay.global/wp-content/uploads/2023/11/cropped-qfpay-logo-32x32.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 /* ==================================================== */
@@ -68,12 +69,10 @@ html, body {
     
     .table-wrapper { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 10px; box-sizing: border-box; }
     
-    /* 🔥 修正：全域表格 td/th 不要強制斷行，只限制在特定區塊 */
     table.dist-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: left; min-width: 540px; }
     table th, table td { border: 1px solid #e2e8f0; padding: 8px 10px; vertical-align: middle; transition: 0.3s; }
     table th { background-color: #edf2f7; color: #2d3748; text-align: center; font-weight: 600; transition: 0.3s; }
     
-    /* 確保輸入與分配表不會爆版 */
     table.dist-table th, table.dist-table td { word-break: break-word; }
 
     table td.region-cell { font-weight: 600; text-align: center; background-color: #f8fafc; width: 15%; color: #4a5568; transition: 0.3s; }
@@ -108,7 +107,6 @@ html, body {
     .result-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); transition: opacity 0.3s ease, filter 0.3s ease, background 0.3s, border-color 0.3s; }
     .stale-result { opacity: 0.35; filter: grayscale(100%); pointer-events: none; }
     
-    /* 🔥 修正：強迫 Result 表格的文字待在同一行，字體微調 */
     table.result-table { width: 100%; text-align: center; border-collapse: collapse; min-width: 540px; }
     table.result-table th { background-color: #f8fafc; color: #4a5568; font-weight: 600; font-size: 11px; white-space: nowrap; transition: 0.3s; padding: 6px 2px; }
     table.result-table td.val { color: #2d3748; font-weight: 500; font-size: 12px; white-space: nowrap; font-family: 'Consolas', 'Segoe UI', Tahoma, sans-serif; transition: opacity 0.3s ease, color 0.3s; }
@@ -162,7 +160,7 @@ html, body {
     .sp-mcc-cell { font-weight: bold; color: #2b6cb0; text-align: center; vertical-align: middle; transition: color 0.3s; }
     .sp-desc-cell { text-align: left; font-size: 11px; line-height: 1.4; vertical-align: middle; transition: color 0.3s; }
     .sp-check-cell { text-align: center; vertical-align: middle; transition: color 0.3s; }
-    .sp-recurring { display: inline-block; font-size: 9px; color: #e53e3e; font-weight: bold; line-height: 1.1; margin-top: 3px; text-align: center; transition: color 0.3s; }
+    .sp-recurring { display: inline-block; font-size: 8.5px; color: #e53e3e; font-weight: bold; line-height: 1.1; margin-top: 3px; text-align: center; transition: color 0.3s; }
     .sp-dash { color: #cbd5e0; transition: color 0.3s; }
 
     /* ==================================================== */
@@ -445,11 +443,9 @@ html, body {
 
     <div class="result-area">
         <h2>Projected Cost Calculation</h2>
-        
         <div id="tables_container" class="result-card stale-result">
             <div class="table-wrapper" style="margin-bottom: 0; padding: 20px;">
                 <div style="min-width: 540px; display: flex; flex-direction: column; gap: 25px;">
-                    
                     <table class="result-table" style="table-layout: fixed;">
                         <colgroup>
                             <col style="width: 10%;">
@@ -607,6 +603,7 @@ html, body {
             📋 Special MCC List 
             <button onclick="closeSpecialMccModal()" style="background: none; border: none; font-size: 16px; cursor: pointer;" class="close-icon">✖</button>
         </h3>
+        <input type="text" id="special_mcc_search_input" placeholder="🔍 Search by MCC, segment, name, or industry..." style="margin-bottom: 15px; width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #cbd5e0; flex-shrink: 0;" onkeyup="renderSpecialMccTable(this.value)">
         <div class="table-wrapper" style="max-height: 60vh; overflow-y: auto; flex: 1;">
             <table class="dist-table" id="special_mcc_table" style="width: 100%; min-width: 1100px;">
                 <thead style="position: sticky; top: 0; z-index: 10;">
@@ -663,14 +660,8 @@ html, body {
 <div id="toast">Message goes here</div>
 
 <script>
-// ==========================================
-// 🚨 敏感資訊安全提醒 🚨
-// ==========================================
-// 由於這是純前端 HTML，以下 Key 在使用者打開開發者工具時必定會曝光。
-// 請確保在 Supabase 後端已經設定好強大的 RLS 與驗證機制。
-// (目前已為你打碼，請務必手動換成你自己的那串 Token！)
-// ==========================================
 const API_URL = "https://fayzdigpxabjfoygllmw.supabase.co/functions/v1/calculate-cost";
+// 🔥 此處已為你填回你提供的 Anon Key 
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZheXpkaWdweGFiamZveWdsbG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTAxODIsImV4cCI6MjA4OTgyNjE4Mn0.Yd7D36SzJmYs0olFGXAjm5gJoL-dQbXIGAS8SHmWRaQ"; 
 
 const supabaseHeaders = {
@@ -799,7 +790,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// 🔥 修正：全域監聽 ESC 鍵關閉任何開啟的彈窗
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeSpecialMccModal();
@@ -820,7 +810,8 @@ document.addEventListener('keydown', function(e) {
         if (activeEl.tagName === 'BUTTON' || 
             activeEl.id === 'record_search' || 
             activeEl.id === 'conflict_new_name' || 
-            activeEl.id === 'mcc') {
+            activeEl.id === 'mcc' ||
+            activeEl.id === 'special_mcc_search_input') {
             return;
         }
         e.preventDefault();
@@ -894,7 +885,6 @@ function exportToImage() {
 
     const firstVersionEl = document.querySelector('.update-version');
     const latestVersionText = firstVersionEl ? firstVersionEl.innerText : 'Version ID: Unknown';
-    
     const verMatch = latestVersionText.match(/\d+/);
     const verNumber = verMatch ? verMatch[0] : 'Unknown';
 
@@ -1030,8 +1020,11 @@ function fetchMccs() {
 }
 
 function openSpecialMccModal() {
+    document.getElementById('special_mcc_search_input').value = '';
+    renderSpecialMccTable(); // Reset filter when opening
     document.getElementById('specialMccModal').style.display = 'flex';
     document.body.style.overflow = 'hidden'; 
+    document.getElementById('special_mcc_search_input').focus();
 }
 
 function closeSpecialMccModal() {
@@ -1039,7 +1032,8 @@ function closeSpecialMccModal() {
     document.body.style.overflow = 'auto'; 
 }
 
-function renderSpecialMccTable() {
+// 🔥 升級版：支援搜尋框即時過濾，且不破壞合併儲存格邏輯
+function renderSpecialMccTable(searchQuery = '') {
     const tbody = document.querySelector('#special_mcc_table tbody');
     tbody.innerHTML = '';
     
@@ -1048,7 +1042,24 @@ function renderSpecialMccTable() {
         return;
     }
 
-    let sortedList = [...specialMccDetailedList].sort((a, b) => {
+    let filteredList = specialMccDetailedList;
+    if (searchQuery.trim() !== '') {
+        const query = searchQuery.toLowerCase();
+        filteredList = specialMccDetailedList.filter(item => {
+            return (item.mcc || "").toLowerCase().includes(query) ||
+                   (item.segment || "").toLowerCase().includes(query) ||
+                   (item.name || "").toLowerCase().includes(query) ||
+                   (item.desc || "").toLowerCase().includes(query) ||
+                   (item.industry || "").toLowerCase().includes(query);
+        });
+    }
+
+    if (filteredList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; color:#e53e3e; padding:20px;">No matching MCC found.</td></tr>';
+        return;
+    }
+
+    let sortedList = [...filteredList].sort((a, b) => {
         let segA = (a.segment || "").toLowerCase();
         let segB = (b.segment || "").toLowerCase();
         if (segA < segB) return -1;
@@ -1064,10 +1075,7 @@ function renderSpecialMccTable() {
 
     sortedList.forEach(item => {
         const tr = document.createElement('tr');
-        
         const isRecurring = (item.segment || "").toLowerCase().includes('recurring');
-        
-        // 🔥 修正：防爆格，確保小螢幕上可以優雅換行
         const renderCheck = (val, applyRecurring) => {
             if (val === 'Y') {
                 return applyRecurring ? '✅<br><span class="sp-recurring">recurring<br>only</span>' : '✅';
@@ -1144,7 +1152,6 @@ function checkSpecialMcc() {
     }
 }
 
-// 🔥 修正：置中排版且不改變原本的 Flex 等寬比例
 function setBadge(brand, state, isRecur) {
     const el = document.getElementById(`badge_${brand}`);
     let recTag = isRecur ? '<br><span style="font-size: 8.5px; color: #e53e3e;">(Recurring)</span>' : '';
@@ -1507,7 +1514,6 @@ function closeLoadModal() {
     setActionState(false);
 }
 
-// 🔥 修正：無縫重置，防止重新載入閃爍頁面
 function resetForm() { 
     if(!confirm("Clear all fields?")) return;
     
