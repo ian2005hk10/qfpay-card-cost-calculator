@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>QFPay - Card Cost Calculator</title>
-<link rel="icon" type="image/png" href="https://www.shareicon.net/data/1024x1024/2015/08/10/83197_calculator_1024x1024.png">
+<link rel="icon" type="image/png" href="https://qfpay.global/wp-content/uploads/2023/11/cropped-qfpay-logo-32x32.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 /* ==================================================== */
@@ -23,8 +23,11 @@ html, body {
     .nav-brand img { height: 35px; width: auto; } 
     
     .user-info { font-size: 14px; display: flex; align-items: center; gap: 15px; }
-    .btn-logout { background: #e53e3e; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+    .btn-logout { background: #e53e3e; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.3s; }
     .btn-logout:hover { background: #c53030; }
+    /* 🔥 修改密碼按鈕專用樣式 */
+    .btn-change-pw { background: #4a5568; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.3s; }
+    .btn-change-pw:hover { background: #2d3748; }
 
     .main-layout { display: flex; max-width: 1400px; margin: 0 auto; gap: 20px; align-items: flex-start; }
     .input-area { flex: 1.2; min-width: 0; }
@@ -258,6 +261,7 @@ html, body {
             box-sizing: border-box;
         }
         .special-mcc-modal .table-wrapper { flex: 1; height: 100%; overflow-x: auto; }
+        
         .modal-content { width: 95vw; padding: 20px; }
     }
 </style>
@@ -290,6 +294,7 @@ html, body {
 <div class="user-info">
 <button class="btn-theme-toggle" id="btn_theme" onclick="toggleTheme()">🌙</button>
 👤 <span id="display_user_name">User</span>
+<button class="btn-change-pw" onclick="openChangePwModal()">🔑 Password</button>
 <button class="btn-logout" onclick="logout()">Logout</button>
 </div>
 </div>
@@ -443,9 +448,11 @@ html, body {
 
     <div class="result-area">
         <h2>Projected Cost Calculation</h2>
+        
         <div id="tables_container" class="result-card stale-result">
             <div class="table-wrapper" style="margin-bottom: 0; padding: 20px;">
                 <div style="min-width: 540px; display: flex; flex-direction: column; gap: 25px;">
+                    
                     <table class="result-table" style="table-layout: fixed;">
                         <colgroup>
                             <col style="width: 10%;">
@@ -571,6 +578,7 @@ html, body {
                 </div>
             </div>
         </div>
+        
     </div>
 </div>
 
@@ -581,6 +589,29 @@ html, body {
     <button class="btn btn-save" id="btn_cloud_save" onclick="saveRecord()">☁️ Save to Cloud</button>
     <button class="btn btn-calc" id="btn_calc" onclick="submitCalculation()">Calculate</button>
 </div>
+</div>
+
+<div id="changePwModal" class="modal-overlay">
+    <div class="modal-content" style="width: 350px;">
+        <h3 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            🔑 Change Password
+            <button onclick="closeChangePwModal()" style="background: none; border: none; font-size: 16px; cursor: pointer;" class="close-icon">✖</button>
+        </h3>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label>Current Password</label>
+            <input type="password" id="cpw_old" placeholder="Enter current password">
+        </div>
+        <div class="form-group" style="margin-bottom: 10px;">
+            <label>New Password</label>
+            <input type="password" id="cpw_new" placeholder="Enter new password">
+        </div>
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label>Confirm New Password</label>
+            <input type="password" id="cpw_confirm" placeholder="Confirm new password" onkeydown="if(event.key === 'Enter') submitChangePw()">
+        </div>
+        <button class="btn-login" id="btn_do_change_pw" onclick="submitChangePw()">Update Password</button>
+        <div id="cpw_error" class="error-text" style="text-align: center; margin-top: 10px;"></div>
+    </div>
 </div>
 
 <div id="loadModal" class="modal-overlay">
@@ -661,8 +692,8 @@ html, body {
 
 <script>
 const API_URL = "https://fayzdigpxabjfoygllmw.supabase.co/functions/v1/calculate-cost";
-// 🔥 此處已為你填回你提供的 Anon Key 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZheXpkaWdweGFiamZveWdsbG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTAxODIsImV4cCI6MjA4OTgyNjE4Mn0.Yd7D36SzJmYs0olFGXAjm5gJoL-dQbXIGAS8SHmWRaQ"; 
+// 🚨 請把以下這串換回你的真實 Anon Key (目前已被我取代為 YOUR_REAL_SUPABASE_ANON_KEY 保護) 🚨
+const SUPABASE_ANON_KEY = "YOUR_REAL_SUPABASE_ANON_KEY"; 
 
 const supabaseHeaders = {
     'Content-Type': 'application/json',
@@ -790,11 +821,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// 🔥 全域監聽 ESC 鍵關閉任何開啟的彈窗
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeSpecialMccModal();
         closeLoadModal();
         closeSaveConflict();
+        closeChangePwModal(); // 新增
         return;
     }
     
@@ -811,7 +844,8 @@ document.addEventListener('keydown', function(e) {
             activeEl.id === 'record_search' || 
             activeEl.id === 'conflict_new_name' || 
             activeEl.id === 'mcc' ||
-            activeEl.id === 'special_mcc_search_input') {
+            activeEl.id === 'special_mcc_search_input' ||
+            activeEl.id === 'cpw_old' || activeEl.id === 'cpw_new' || activeEl.id === 'cpw_confirm') {
             return;
         }
         e.preventDefault();
@@ -853,6 +887,53 @@ window.onload = () => {
     }
     toggleShopify();
 };
+
+// 🔥 新增：打開與關閉「修改密碼」彈窗，及送出邏輯
+function openChangePwModal() {
+    document.getElementById('cpw_old').value = '';
+    document.getElementById('cpw_new').value = '';
+    document.getElementById('cpw_confirm').value = '';
+    document.getElementById('cpw_error').style.display = 'none';
+    document.getElementById('changePwModal').style.display = 'flex';
+}
+
+function closeChangePwModal() {
+    document.getElementById('changePwModal').style.display = 'none';
+}
+
+function submitChangePw() {
+    const oldPw = document.getElementById('cpw_old').value.trim();
+    const newPw = document.getElementById('cpw_new').value.trim();
+    const confPw = document.getElementById('cpw_confirm').value.trim();
+    const errObj = document.getElementById('cpw_error');
+    const btn = document.getElementById('btn_do_change_pw');
+
+    if(!oldPw || !newPw || !confPw) { errObj.innerText = "Please fill in all fields."; errObj.style.display = 'block'; return; }
+    if(newPw !== confPw) { errObj.innerText = "New passwords do not match."; errObj.style.display = 'block'; return; }
+    if(newPw.length < 6) { errObj.innerText = "New password must be at least 6 characters."; errObj.style.display = 'block'; return; }
+
+    btn.innerText = "Updating...";
+    btn.disabled = true; errObj.style.display = 'none';
+
+    fetch(API_URL, {
+        method: 'POST',
+        headers: supabaseHeaders,
+        body: JSON.stringify({ action: "change_password", username: currentUser, currentPassword: oldPw, newPassword: newPw })
+    }).then(r => r.json()).then(res => {
+        btn.innerText = "Update Password";
+        btn.disabled = false;
+        if(res.status === "success") {
+            closeChangePwModal();
+            showToast("🔑 Password updated successfully!", "#38a169");
+        } else {
+            errObj.innerText = res.message || "Failed to update password."; errObj.style.display = 'block';
+        }
+    }).catch(e => {
+        btn.innerText = "Update Password";
+        btn.disabled = false;
+        errObj.innerText = "Network error."; errObj.style.display = 'block';
+    });
+}
 
 function exportToImage() {
     if (document.getElementById('tables_container').classList.contains('stale-result')) {
@@ -1032,7 +1113,6 @@ function closeSpecialMccModal() {
     document.body.style.overflow = 'auto'; 
 }
 
-// 🔥 升級版：支援搜尋框即時過濾，且不破壞合併儲存格邏輯
 function renderSpecialMccTable(searchQuery = '') {
     const tbody = document.querySelector('#special_mcc_table tbody');
     tbody.innerHTML = '';
@@ -1514,6 +1594,7 @@ function closeLoadModal() {
     setActionState(false);
 }
 
+// 🔥 修正：無縫重置，不會再閃現 Login Page
 function resetForm() { 
     if(!confirm("Clear all fields?")) return;
     
