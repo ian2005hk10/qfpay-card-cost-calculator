@@ -25,7 +25,6 @@ html, body {
     .user-info { font-size: 14px; display: flex; align-items: center; gap: 15px; }
     .btn-logout { background: #e53e3e; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.3s; }
     .btn-logout:hover { background: #c53030; }
-    /* 🔥 修改密碼按鈕專用樣式 */
     .btn-change-pw { background: #4a5568; color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.3s; }
     .btn-change-pw:hover { background: #2d3748; }
 
@@ -159,9 +158,13 @@ html, body {
 
     .special-mcc-modal { width: 1100px; max-width: 95%; }
     
+    /* 🔥 讓這些欄位支援原本的換行 (`<br>`) 和空白設定 */
     .segment-cell { text-align: left; font-size: 12px; font-weight: bold; line-height: 1.3; vertical-align: middle; background-color: #f8fafc; color: #2d3748; transition: background-color 0.3s, color 0.3s; border-right: 1px solid #cbd5e0; }
     .sp-mcc-cell { font-weight: bold; color: #2b6cb0; text-align: center; vertical-align: middle; transition: color 0.3s; }
-    .sp-desc-cell { text-align: left; font-size: 11px; line-height: 1.4; vertical-align: middle; transition: color 0.3s; }
+    
+    /* 🔥 確保 Excel 原本的換行在被 JS 轉換後能好好顯示 */
+    .sp-desc-cell { text-align: left; font-size: 11px; line-height: 1.4; vertical-align: middle; transition: color 0.3s; white-space: pre-line; }
+    
     .sp-check-cell { text-align: center; vertical-align: middle; transition: color 0.3s; }
     .sp-recurring { display: inline-block; font-size: 8.5px; color: #e53e3e; font-weight: bold; line-height: 1.1; margin-top: 3px; text-align: center; transition: color 0.3s; }
     .sp-dash { color: #cbd5e0; transition: color 0.3s; }
@@ -261,7 +264,6 @@ html, body {
             box-sizing: border-box;
         }
         .special-mcc-modal .table-wrapper { flex: 1; height: 100%; overflow-x: auto; }
-        
         .modal-content { width: 95vw; padding: 20px; }
     }
 </style>
@@ -332,11 +334,11 @@ html, body {
             <div class="mcc-info-box" id="mcc_info_box">
                 <div style="margin-bottom: 10px;">
                     <span style="font-weight: bold; color: #2b6cb0;">📝 MCC Description:</span>
-                    <div id="mcc_desc_text" style="margin-top: 4px; line-height: 1.5;">-</div>
+                    <div id="mcc_desc_text" style="margin-top: 4px; line-height: 1.5; white-space: pre-line;">-</div>
                 </div>
                 <div>
                     <span style="font-weight: bold; color: #2b6cb0;">✅ Included in this MCC:</span>
-                    <div id="mcc_included_text" style="margin-top: 4px; line-height: 1.5;">-</div>
+                    <div id="mcc_included_text" style="margin-top: 4px; line-height: 1.5; white-space: pre-line;">-</div>
                 </div>
             </div>
 
@@ -448,11 +450,9 @@ html, body {
 
     <div class="result-area">
         <h2>Projected Cost Calculation</h2>
-        
         <div id="tables_container" class="result-card stale-result">
             <div class="table-wrapper" style="margin-bottom: 0; padding: 20px;">
                 <div style="min-width: 540px; display: flex; flex-direction: column; gap: 25px;">
-                    
                     <table class="result-table" style="table-layout: fixed;">
                         <colgroup>
                             <col style="width: 10%;">
@@ -578,7 +578,6 @@ html, body {
                 </div>
             </div>
         </div>
-        
     </div>
 </div>
 
@@ -692,8 +691,7 @@ html, body {
 
 <script>
 const API_URL = "https://fayzdigpxabjfoygllmw.supabase.co/functions/v1/calculate-cost";
-// 🚨 請把以下這串換回你的真實 Anon Key (目前已被我取代為 YOUR_REAL_SUPABASE_ANON_KEY 保護) 🚨
-const SUPABASE_ANON_KEY = "YOUR_REAL_SUPABASE_ANON_KEY"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZheXpkaWdweGFiamZveWdsbG13Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyNTAxODIsImV4cCI6MjA4OTgyNjE4Mn0.Yd7D36SzJmYs0olFGXAjm5gJoL-dQbXIGAS8SHmWRaQ"; 
 
 const supabaseHeaders = {
     'Content-Type': 'application/json',
@@ -821,13 +819,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// 🔥 全域監聽 ESC 鍵關閉任何開啟的彈窗
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
         closeSpecialMccModal();
         closeLoadModal();
         closeSaveConflict();
-        closeChangePwModal(); // 新增
+        closeChangePwModal();
         return;
     }
     
@@ -888,7 +885,6 @@ window.onload = () => {
     toggleShopify();
 };
 
-// 🔥 新增：打開與關閉「修改密碼」彈窗，及送出邏輯
 function openChangePwModal() {
     document.getElementById('cpw_old').value = '';
     document.getElementById('cpw_new').value = '';
@@ -1102,7 +1098,7 @@ function fetchMccs() {
 
 function openSpecialMccModal() {
     document.getElementById('special_mcc_search_input').value = '';
-    renderSpecialMccTable(); // Reset filter when opening
+    renderSpecialMccTable(); 
     document.getElementById('specialMccModal').style.display = 'flex';
     document.body.style.overflow = 'hidden'; 
     document.getElementById('special_mcc_search_input').focus();
@@ -1111,6 +1107,13 @@ function openSpecialMccModal() {
 function closeSpecialMccModal() {
     document.getElementById('specialMccModal').style.display = 'none';
     document.body.style.overflow = 'auto'; 
+}
+
+// 🔥 新增：將換行符號取代為 HTML 的 <br> 標籤
+function formatMultilineText(text) {
+    if (!text) return '-';
+    // 支援各種系統的換行符號 (\r\n, \n, \r)
+    return text.replace(/\r\n|\r|\n/g, '<br>');
 }
 
 function renderSpecialMccTable(searchQuery = '') {
@@ -1179,11 +1182,13 @@ function renderSpecialMccTable(searchQuery = '') {
         }
 
         const restOfRow = document.createElement('template');
+        
+        // 🔥 套用 formatMultilineText 來確保資料庫裡的 \n 能變成網頁的 <br>
         restOfRow.innerHTML = `
             <td class="sp-mcc-cell">${item.mcc}</td>
-            <td class="sp-desc-cell" style="font-weight:bold;">${item.name || '-'}</td>
-            <td class="sp-desc-cell">${item.desc || '-'}</td>
-            <td class="sp-desc-cell">${item.industry || '-'}</td>
+            <td class="sp-desc-cell" style="font-weight:bold;">${formatMultilineText(item.name)}</td>
+            <td class="sp-desc-cell">${formatMultilineText(item.desc)}</td>
+            <td class="sp-desc-cell">${formatMultilineText(item.industry)}</td>
             <td class="sp-check-cell">${renderCheck(item.vOn, isRecurring)}</td>
             <td class="sp-check-cell">${renderCheck(item.vOff, isRecurring)}</td>
             <td class="sp-check-cell">${renderCheck(item.mOn, isRecurring)}</td>
@@ -1224,8 +1229,9 @@ function checkSpecialMcc() {
     if (specialMccs.u.includes(targetMcc)) setBadge('u', 'special', false); else setBadge('u', 'normal', false);
 
     if (mccDetailsMap[targetMcc]) {
-        document.getElementById('mcc_desc_text').innerText = mccDetailsMap[targetMcc].desc;
-        document.getElementById('mcc_included_text').innerText = mccDetailsMap[targetMcc].included;
+        // 🔥 修改：主畫面的說明也一併套用換行轉換
+        document.getElementById('mcc_desc_text').innerHTML = formatMultilineText(mccDetailsMap[targetMcc].desc);
+        document.getElementById('mcc_included_text').innerHTML = formatMultilineText(mccDetailsMap[targetMcc].included);
         infoBox.style.display = 'block';
     } else {
         infoBox.style.display = 'none';
@@ -1594,7 +1600,6 @@ function closeLoadModal() {
     setActionState(false);
 }
 
-// 🔥 修正：無縫重置，不會再閃現 Login Page
 function resetForm() { 
     if(!confirm("Clear all fields?")) return;
     
